@@ -1,16 +1,21 @@
 import React from "react";
 import { Star, MapPin } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";  
 export default function EcomCard({
   professional,
   categoryName,
   specialityName,
   cityNames,
 }) {
+  
   const displayRating = professional.rating?.toFixed(1) || "N/A";
   const displayReviewCount = professional.reviewCount || 0;
-
+  const navigate = useNavigate();
+  const masterId= professional.id;  
   const displayTags = professional.tags || [];
+    const handleClick = () => {
+    navigate(`/master/${professional.id}`);
+  };
 
   const locationText =
     cityNames && cityNames.length > 0 ? cityNames.join(", ") : "Yer yoxdur";
@@ -65,7 +70,7 @@ export default function EcomCard({
           </div>
         )}
         <div className="mt-auto">
-          <button className="w-full bg-[#1A4862] text-white py-2 rounded-lg font-medium cursor-pointer border border-[#1A4862] hover:bg-white hover:text-[#1A4862] transition hover: motion-reduce:transition-none motion-reduce:hover:transform-none">
+          <button  onClick={handleClick} className="w-full bg-[#1A4862] text-white py-2 rounded-lg font-medium cursor-pointer border border-[#1A4862] hover:bg-white hover:text-[#1A4862] transition hover: motion-reduce:transition-none motion-reduce:hover:transform-none">
             Ətraflı
           </button>
         </div>

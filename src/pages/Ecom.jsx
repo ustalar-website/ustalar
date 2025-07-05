@@ -257,7 +257,7 @@ export default function Ecom() {
                 axtarış nəticələri ({totalProfessionals})
               </span>
             </h1>
-            <div className="relative inline-block text-left">
+            <div className="relative inline-block text-left"> 
               {/* <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="inline-flex justify-between items-center gap-1 text-lg w-56 p-4 bg-white border border-gray-300 rounded-lg shadow-sm font-bold hover:bg-gray-50 "

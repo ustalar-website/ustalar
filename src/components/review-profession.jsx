@@ -2,6 +2,7 @@ import { Star } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
+import Sidebar from "../sidebar";
 
 const getImageUrl = (path) => {
   if (!path) return "/placeholder.svg";
@@ -211,7 +212,7 @@ export default function ReviewProfession({ masterId }) {
 
           <div className="w-full md:w-[30%] p-4 bg-gray-50 rounded-lg">
             <h3 className="font-semibold text-[20px] mb-4">
-              Haqqımda etiketlər
+              Haqqında etiketlər
             </h3>
             <div className="flex flex-wrap gap-2">
               {POPULAR_TAGS.map((tag) => (
@@ -375,6 +376,14 @@ export default function ReviewProfession({ masterId }) {
             </button>
           </div>
         )}
+        <div className="flex justify-end mt-4 mr-10">
+          <Link
+            to={`/reviews/${masterId}`}
+            className="px-6 py-3 bg-cyan-900 hover:bg-cyan-800 text-white rounded-md  text-center"
+          >
+            Rəyinizi bizimlə bölüşün
+          </Link>
+        </div>
       </div>
       <Footer />
     </div>

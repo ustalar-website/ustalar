@@ -3,8 +3,11 @@ import { InfoCards } from "../profil";
 import axios from "axios";
 import ReviewDisplay from "../components/review";
 import Footer from "../components/Footer";
+import { useParams } from "react-router-dom";
+import ReviewProfession from "../components/review-profession";
 
 const ProfileHeader = ({ data, socialLinks }) => {
+    
   return (
     <>
       <div className="flex m-auto">
@@ -87,11 +90,12 @@ const ProfileHeader = ({ data, socialLinks }) => {
 const ProfilePage = () => {
   const [data, setData] = useState(null);
   const [socialLinks, setSocialLinks] = useState([]);
+  const { masterId } = useParams();
 
   const fetchProfessional = async () => {
     try {
       const response = await axios.get(
-        "https://masters-1.onrender.com/api/v1/professionals/47/"
+        `https://api.peshekar.online/api/v1/professionals/${masterId}/`
       );
       setData(response.data);
       setSocialLinks(
@@ -120,8 +124,10 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    fetchProfessional();
-  }, []);
+    if(masterId){
+      fetchProfessional();
+    }
+  }, [masterId]);
 
   return (
     <div className=" h-full">
@@ -136,7 +142,7 @@ const ProfilePage = () => {
       <ProfileHeader data={data} socialLinks={socialLinks} />
       <InfoCards profileData={data} isUseFor="User Profile" />
       <hr className="mt-8 border-cyan-900 " />
-      <ReviewDisplay />
+      <ReviewProfession />
       <Footer />
     </div>
   );

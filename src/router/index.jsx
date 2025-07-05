@@ -10,6 +10,7 @@ import Rey from "../pages/rey";
 import Edit from "../components/Edit";
 import Review from "../components/review";
 import ChangePassword from "../components/ChangePassword";
+import MainPage from "../components/MainPage";
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
   },
   {
     path: "/reviews",
+    element: <ReviewPage />,
+  },
+  {
+    path: "/reviews/:masterId",
     element: <ReviewPage />,
   },
   {
@@ -52,5 +57,9 @@ export const router = createBrowserRouter([
   {
     path: "/reset",
     element: <ChangePassword />,
+  },
+  {
+    path: "/master/:masterId",
+    element: <MainPage />,
   },
 ]);

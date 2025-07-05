@@ -3,7 +3,7 @@
 import { Star } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import Sidebar from "../sidebar";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const getImageUrl = (path) => {
   if (!path) return "/placeholder.svg";
@@ -395,6 +395,14 @@ export default function ReviewDisplay() {
             </div>
           )}
         </div>
+        {/* <div className="flex justify-end mt-4 mr-20">
+        <Link
+          to={`/reviews/${masterId}`}
+          className="px-6 py-3 bg-cyan-900 hover:bg-cyan-800 text-white rounded-md  text-center"
+        >
+          Rəyinizi bizimlə bölüşün
+        </Link>
+      </div> */}
       </div>
     </div>
   );
