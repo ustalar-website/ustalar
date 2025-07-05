@@ -136,12 +136,12 @@ function Register() {
   });
 
   const educationOptions = [
-    { id: 0, label: "Tam ali" },
-    { id: 1, label: "Natamam ali" },
-    { id: 2, label: "Orta" },
-    { id: 3, label: "Peşə təhsili" },
-    { id: 4, label: "Orta ixtisas təhsili" },
-    { id: 5, label: "Yoxdur" },
+      { id: 1, label: "Tam ali" },
+      { id: 2, label: "Natamam ali" },
+      { id: 3, label: "Orta" },
+      { id: 4, label: "Peşə təhsili" },
+      { id: 5, label: "Orta ixtisas təhsili" },
+      { id: 0, label: "Yoxdur" },
   ];
 
   const [socialMediaLinks, setSocialMediaLinks] = useState({
