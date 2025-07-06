@@ -42,6 +42,7 @@ export default function ProfilePage() {
     created_at: "",
     updated_at: "",
     profession_area: 0,
+    custom_profession: "",
     profession_speciality: 0,
     cities: [0, 0],
     languages: [],
@@ -378,7 +379,10 @@ export const InfoCards = ({ profileData, isUseFor }) => {
           <span className="flex flex-col">
             <span className="text-gray-500">Peşə ixtisası:</span>
             <span className="font-semibold text-cyan-900 text-[16px]">
-              {profileData?.profession_speciality}
+              {typeof profileData?.profession_speciality === "string" &&
+              profileData.profession_speciality.includes("Digər")
+                ? profileData?.custom_profession
+                : profileData?.profession_speciality ?? "—"}
             </span>
           </span>
         </p>
