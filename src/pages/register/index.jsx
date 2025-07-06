@@ -91,8 +91,11 @@ function Register() {
       .then((response) => {
         const fetchedServices = response.data;
         const otherService = fetchedServices.find(
-          (item) => item.display_name === "Digər" || item.name === "Digər"
+          (item) =>
+            item.display_name.toLowerCase().includes("digər") ||
+            item.display_name.toLowerCase() === "Digər"
         );
+
         if (otherService) {
           setOtherServiceId(otherService.id);
           setServices(
@@ -132,7 +135,7 @@ function Register() {
     },
     work_images: [],
     about: "",
-    profession_speciality_other: "",
+    custom_profession: "",
   });
 
   const educationOptions = [
@@ -272,13 +275,13 @@ function Register() {
       return /^(50|51|55|70|77|99|10|60)\d{7}$/;
     } else if (name === "password") {
       return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\-_+])[A-Za-z\d!@#\-_+]{8,15}$/;
-    } else if (name === "profession_speciality_other") {
+    } else if (name === "custom_profession") {
       return /^[AaBbCcÇçDdEeƏəFfGgĞğHhXxIıİiJjKkQqLlMmNnOoÖöPpRrSsŞşTtUuÜüVvYyZz ]{3,40}$/;
     }
     return null;
   };
 
-  const getErrorMessage = (name, value) => {
+  const getErrorMessage = (name, value, extraData = {}) => {
     switch (name) {
       case "first_name":
       case "last_name":
@@ -286,6 +289,7 @@ function Register() {
         if (!regexps(name).test(value) || /[А-Яа-яЁё]/.test(value))
           return "Yalnız Azərbaycan hərfləri ilə yazılmalıdır.";
         return "";
+
       case "birth_date":
         if (isEmpty(value)) return "Zəhmət olmasa, doğum tarixini daxil edin.";
         const birthDate = value instanceof Date ? value : parseISO(value);
@@ -293,56 +297,72 @@ function Register() {
         if (birthDate > subYears(new Date(), 15))
           return "Qeydiyyatdan keçmək üçün minimum yaş 15 olmalıdır.";
         return "";
+
       case "mobile_number":
         if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin.";
         if (!regexps(name).test(value))
           return "Mobil nömrə düzgün daxil edilməyib. 50 123 45 67 formatında daxil edin.";
         return "";
+
       case "password":
         if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin.";
         if (!regexps(name).test(value))
           return "Şifrəniz ən azı 8 simvoldan ibarət olmalı, özündə minimum bir böyük hərf, rəqəm və xüsusi simvol (məsələn: !, @, #, -, _, +) ehtiva etməlidir.";
         return "";
+
       case "password2":
         if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin.";
         if (formData.password !== value) return "Şifrələr uyğun deyil.";
         return "";
+
       case "gender":
         if (isEmpty(value)) return "Zəhmət olmasa, seçim edin.";
         return "";
+
       case "profession_area":
         if (isEmpty(value)) return "Zəhmət olmasa, peşə sahəsi seçin.";
         return "";
+
       case "profession_speciality":
+        if (Number(value) === Number(otherServiceId)) return "";
         if (isEmpty(value)) return "Zəhmət olmasa, peşə ixtisası seçin.";
         return "";
-      case "profession_speciality_other":
+
+      case "custom_profession":
         if (isEmpty(value)) return "Zəhmət olmasa, ixtisası daxil edin.";
         if (!regexps(name).test(value))
           return "Yalnız Azərbaycan hərfləri ilə qeyd edilməlidir";
         return "";
+
       case "experience_years":
         if (isEmpty(value)) return "Zəhmət olmasa, iş təcrübəsini daxil edin.";
         return "";
+
       case "cities":
         if (isEmpty(value)) return "Fəaliyyət ərazisi seçilməlidir.";
         return "";
+
       case "education":
         if (isEmpty(value)) return "Zəhmət olmasa, təhsil səviyyəsini seçin.";
         return "";
+
       case "educationField":
         if (isEmpty(value))
           return "Zəhmət olmasa, təhsil ixtisasını daxil edin.";
         return "";
+
       case "about":
         if (isEmpty(value)) return "Haqqınızda məlumat daxil edin";
         return "";
+
       case "profile_image":
         if (isEmpty(value)) return "Profil şəkli əlavə olunmalıdır";
         return "";
+
       case "languages":
         if (isEmpty(value)) return "Zəhmət olmasa, dil biliklərinizi seçin.";
         return "";
+
       default:
         return "";
     }
@@ -366,16 +386,24 @@ function Register() {
         "profession_area",
         formData.profession_area
       );
-      errors.profession_speciality = getErrorMessage(
-        "profession_speciality",
-        formData.profession_speciality
-      );
-      if (formData.profession_speciality === otherServiceId) {
-        errors.profession_speciality_other = getErrorMessage(
-          "profession_speciality_other",
-          formData.profession_speciality_other
+
+      if (formData.profession_speciality !== otherServiceId) {
+        errors.profession_speciality = getErrorMessage(
+          "profession_speciality",
+          formData.profession_speciality,
+          { otherServiceId }
         );
       }
+
+      if (formData.profession_speciality === otherServiceId) {
+        errors.custom_profession = getErrorMessage(
+          "custom_profession",
+          formData.custom_profession
+        );
+      } else if (!formData.profession_speciality) {
+        errors.profession_speciality = "Zəhmət olmasa, peşə ixtisası seçin.";
+      }
+
       errors.experience_years = getErrorMessage(
         "experience_years",
         formData.experience_years
@@ -411,18 +439,20 @@ function Register() {
       check_password_strength(value);
     }
     if (name === "profession_speciality") {
+      const numericValue = value === "other" ? otherServiceId : Number(value);
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: numericValue,
+        custom_profession: value === "other" ? prev.custom_profession : "",
+      }));
+
       if (value === "other") {
-        setFormData((prev) => ({
-          ...prev,
-          [name]: otherServiceId,
-          profession_speciality_other: "",
-        }));
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          [name]: Number.parseInt(value),
-          profession_speciality_other: "",
-        }));
+        setFormDataErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.profession_speciality;
+          return newErrors;
+        });
       }
     } else if (multiple) {
       const values = Array.from(options)
@@ -453,7 +483,7 @@ function Register() {
       setFormData((prev) => ({
         ...prev,
         profession_speciality: "",
-        profession_speciality_other: "",
+        custom_profession: "",
       }));
     }
   };
@@ -462,7 +492,7 @@ function Register() {
     const { name, value } = e.target;
     setFormDataErrors((prev) => ({
       ...prev,
-      [name]: getErrorMessage(name, value),
+      [name]: getErrorMessage(name, value, { otherServiceId }),
     }));
   };
 
@@ -545,16 +575,13 @@ function Register() {
         "profession_speciality",
         formData.profession_speciality
       );
-      formDataToSend.append(
-        "profession_speciality_other",
-        formData.profession_speciality_other
-      );
+      formDataToSend.append("custom_profession", formData.custom_profession);
     } else {
       formDataToSend.append(
         "profession_speciality",
         formData.profession_speciality
       );
-      formDataToSend.append("profession_speciality_other", "");
+      formDataToSend.append("custom_profession", "");
     }
     formDataToSend.append("experience_years", formData.experience_years);
     formData.cities.forEach((cityId) =>
@@ -1124,7 +1151,9 @@ function Register() {
                     {item.display_name}
                   </option>
                 ))}
-                {otherServiceId && <option value="other">Digər</option>}
+                {otherServiceId && (
+                  <option value={otherServiceId}>Digər</option>
+                )}
               </select>
               {formDataErrors.profession_speciality && (
                 <p className="text-red-500 text-sm mt-1">
@@ -1140,8 +1169,8 @@ function Register() {
                 <input
                   type="text"
                   maxLength={50}
-                  name="profession_speciality_other"
-                  value={formData.profession_speciality_other || ""}
+                  name="custom_profession"
+                  value={formData.custom_profession || ""}
                   onChange={handleChange}
                   onBlur={handleBlurValidation}
                   onKeyDown={(e) => {
@@ -1157,14 +1186,14 @@ function Register() {
                   }}
                   placeholder="Daxil edin..."
                   className={`w-full border p-2 rounded-md text-cyan-900 ${
-                    formDataErrors.profession_speciality_other
+                    formDataErrors.custom_profession
                       ? "border-red-600"
                       : "border-gray-200"
                   } bg-[rgba(195,200,209,1)] px-4 py-2 cursor-pointer focus:outline-none focus:ring focus:ring-blue-300`}
                 />
-                {formDataErrors.profession_speciality_other && (
+                {formDataErrors.custom_profession && (
                   <p className="text-red-500 text-sm mt-1">
-                    {formDataErrors.profession_speciality_other}
+                    {formDataErrors.custom_profession}
                   </p>
                 )}
               </div>
