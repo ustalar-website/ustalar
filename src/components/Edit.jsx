@@ -67,7 +67,6 @@ export default function Edit() {
   const [showPhotoPopup, setShowPhotoPopup] = useState(false);
   const [showSaveSuccessPopup, setShowSaveSuccessPopup] = useState(false);
   const [showDeleteConfirmPopup, setShowDeleteConfirmPopup] = useState(false);
-  const [visible, setVisible] = useState(false);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [tempImagePreview, setTempImagePreview] = useState(null);
   const [zoom, setZoom] = useState(50);
@@ -128,6 +127,50 @@ export default function Edit() {
     cities: [],
     districts: [],
   });
+
+  // !Password
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordError, setNewPasswordError] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [confirmNewPasswordError, setConfirmNewPasswordError] = useState("");
+  const [showPasswordChangeFields, setShowPasswordChangeFields] =
+    useState(false);
+
+  //! Password visibility
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  //! Password validation
+  const validateNewPassword = (pwd) => {
+    if (!pwd.trim()) {
+      setNewPasswordError("Zəhmət olmasa, yeni şifrəni daxil edin.");
+      return false;
+    }
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\-_+])[A-Za-z\d!@#\-_+]{8,15}$/;
+    if (!passwordRegex.test(pwd)) {
+      setNewPasswordError(
+        "Şifrəniz 8-15 simvol aralığından ibarət olmalı, özündə minimum bir böyük hərf, rəqəm və xüsusi simvol (məsələn: !, @, #, -, _) ehtiva etməlidir."
+      );
+      return false;
+    }
+    setNewPasswordError("");
+    return true;
+  };
+
+  const validateConfirmNewPassword = (pwd) => {
+    if (!pwd.trim()) {
+      setConfirmNewPasswordError("Zəhmət olmasa, şifrə təsdiqini daxil edin.");
+      return false;
+    }
+    if (pwd !== newPassword) {
+      setConfirmNewPasswordError("Şifrələr uyğun gəlmir.");
+      return false;
+    }
+    setConfirmNewPasswordError("");
+    return true;
+  };
 
   const registrationDate = new Date("2025-08-11");
   const formattedRegistrationDate = format(registrationDate, "dd MMMM");
@@ -565,6 +608,19 @@ export default function Edit() {
       formData.append("cities", Number(city.id));
     });
 
+    if (showPasswordChangeFields && newPassword && confirmNewPassword) {
+      const isNewPasswordValid = validateNewPassword(newPassword);
+      const isConfirmPasswordValid =
+        validateConfirmNewPassword(confirmNewPassword);
+
+      if (!isNewPasswordValid || !isConfirmPasswordValid) {
+        return;
+      }
+
+      formData.append("new_password", newPassword);
+      formData.append("new_password_two", confirmNewPassword);
+    }
+
     citiesForShow.districts.forEach((district) => {
       formData.append("districts", Number(district.id));
     });
@@ -651,6 +707,13 @@ export default function Edit() {
           },
         }
       );
+
+      if (showPasswordChangeFields) {
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setShowPasswordChangeFields(false);
+      }
+
       setUserData(response.data);
       setShowSaveSuccessPopup(true);
 
@@ -1151,6 +1214,16 @@ export default function Edit() {
     );
     const isLanguageSkillsValid = validateLanguageSkills(languages);
 
+    if (showPasswordChangeFields) {
+      const isNewPasswordValid = validateNewPassword(newPassword);
+      const isConfirmPasswordValid =
+        validateConfirmNewPassword(confirmNewPassword);
+
+      if (!isNewPasswordValid || !isConfirmPasswordValid) {
+        return;
+      }
+    }
+
     if (
       isFirstNameValid &&
       isLastNameValid &&
@@ -1215,9 +1288,13 @@ export default function Edit() {
     setShowDeleteConfirmPopup(false);
   };
 
-  const handleChangeVisible = () => {
-    setVisible(!visible);
-  };
+  const toggleCurrentPassword = () =>
+    setShowCurrentPassword(!showCurrentPassword);
+
+  const toggleNewPassword = () => setShowNewPassword(!showNewPassword);
+
+  const toggleConfirmPassword = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files).map((file) => ({
@@ -1815,9 +1892,10 @@ export default function Edit() {
                   <p className="text-[#EF4444] text-[1rem]">*</p>
                 </div>
                 <div>
+                  {/* Köhnə şifrə */}
                   <div className="relative w-[27.5rem]">
                     <input
-                      type={`${visible ? "text" : "password"}`}
+                      type={showCurrentPassword ? "text" : "password"}
                       maxLength={15}
                       className={`w-[27.5rem] h-[3rem] border ${
                         passwordError ? "border-red-500" : "border-[#C3C8D1]"
@@ -1828,16 +1906,125 @@ export default function Edit() {
                     />
                     <button
                       type="button"
-                      onClick={handleChangeVisible}
+                      onClick={toggleCurrentPassword}
                       className="w-6 h-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#1A4862]"
                     >
-                      {visible ? <Eye size={20} /> : <EyeOff size={20} />}
+                      {showCurrentPassword ? (
+                        <Eye size={20} />
+                      ) : (
+                        <EyeOff size={20} />
+                      )}
                     </button>
                   </div>
                   {passwordError && (
                     <p className="w-[450px] text-[#EF4444] text-[.8rem] mt-1">
                       {passwordError}
                     </p>
+                  )}
+                  {/* Yeni şifrə */}
+                  {showPasswordChangeFields && (
+                    <>
+                      <div>
+                        <div className="flex gap-[4px]">
+                          <img
+                            src={locksvg || "/placeholder.svg"}
+                            alt="password-icon"
+                            className="w-[1.2rem] h-[1.2rem]"
+                          />
+                          <p className="text-[#656F83] text-[.8rem]">
+                            Yeni şifrə
+                          </p>
+                          <p className="text-[#EF4444] text-[1rem]">*</p>
+                        </div>
+                        <div className="relative w-[27.5rem]">
+                          <input
+                            type={showNewPassword ? "text" : "password"}
+                            maxLength={15}
+                            className={`w-[27.5rem] h-[3rem] border ${
+                              newPasswordError
+                                ? "border-red-500"
+                                : "border-[#C3C8D1]"
+                            } rounded-lg outline-none p-2 text-[#1A4862] font-semibold`}
+                            value={newPassword}
+                            onChange={(e) => {
+                              setNewPassword(e.target.value);
+                              setNewPasswordError("");
+                            }}
+                            onBlur={() => validateNewPassword(newPassword)}
+                          />
+                          <button
+                            type="button"
+                            onClick={toggleNewPassword}
+                            className="w-6 h-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#1A4862]"
+                          >
+                            {showNewPassword ? (
+                              <Eye size={20} />
+                            ) : (
+                              <EyeOff size={20} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Yeni şifrə təsdiqi */}
+                      <div>
+                        <div className="flex gap-[4px]">
+                          <img
+                            src={locksvg || "/placeholder.svg"}
+                            alt="password-icon"
+                            className="w-[1.2rem] h-[1.2rem]"
+                          />
+                          <p className="text-[#656F83] text-[.8rem]">
+                            Yeni şifrə təsdiqi
+                          </p>
+                          <p className="text-[#EF4444] text-[1rem]">*</p>
+                        </div>
+                        <div className="relative w-[27.5rem]">
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            maxLength={15}
+                            className={`w-[27.5rem] h-[3rem] border ${
+                              confirmNewPasswordError
+                                ? "border-red-500"
+                                : "border-[#C3C8D1]"
+                            } rounded-lg outline-none p-2 text-[#1A4862] font-semibold`}
+                            value={confirmNewPassword}
+                            onChange={(e) => {
+                              setConfirmNewPassword(e.target.value);
+                              setConfirmNewPasswordError("");
+                            }}
+                            onBlur={() =>
+                              validateConfirmNewPassword(confirmNewPassword)
+                            }
+                          />
+                          <button
+                            type="button"
+                            onClick={toggleConfirmPassword}
+                            className="w-6 h-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#1A4862]"
+                          >
+                            {showConfirmPassword ? (
+                              <Eye size={20} />
+                            ) : (
+                              <EyeOff size={20} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      {newPasswordError && (
+                        <p className="w-[450px] text-[#EF4444] text-[.8rem] mt-1">
+                          {newPasswordError}
+                        </p>
+                      )}
+                    </>
+                  )}
+                  {!showPasswordChangeFields && (
+                    <button
+                      type="button"
+                      className="cursor-pointer text-[#3187B8] text-[.9rem] font-semibold mt-2"
+                      onClick={() => setShowPasswordChangeFields(true)}
+                    >
+                      Şifrəni dəyiş
+                    </button>
                   )}
                 </div>
               </div>
