@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { az } from "date-fns/locale";
@@ -107,7 +107,9 @@ export default function Edit() {
   const [professionSpecialization, setProfessionSpecialization] = useState("");
   const [professionSpecializationError, setProfessionSpecializationError] =
     useState("");
-  const [otherSpecializationInput, setOtherSpecializationInput] = useState("");
+  const [otherSpecializationInput, setOtherSpecializationInput] = useState(
+    userData?.custom_profession || ""
+  );
   const [workExperience, setWorkExperience] = useState("");
   const [workExperienceError, setWorkExperienceError] = useState("");
   const [activityArea, setActivityArea] = useState("");
@@ -140,6 +142,9 @@ export default function Edit() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  //! Diger secimi ucun
+  const [otherServiceId, setOtherServiceId] = useState(null);
 
   //! Password validation
   const validateNewPassword = (pwd) => {
@@ -300,6 +305,7 @@ export default function Edit() {
               id: id || null,
             };
           });
+
           setUploadedImages(finalUploadedImages);
           console.log(
             "Final uploaded images after merging IDs:",
@@ -344,53 +350,43 @@ export default function Edit() {
 
       if (data.profession_speciality) {
         let foundServiceId = "";
-        let specialityDisplayName = "";
+        let isOtherService = false;
 
-        if (data.profession_speciality.id) {
-          foundServiceId = data.profession_speciality.id;
-          specialityDisplayName = data.profession_speciality.display_name || "";
-        } else if (typeof data.profession_speciality === "string") {
-          specialityDisplayName = data.profession_speciality.trim();
-
-          let service = fetchedAllServices.find(
-            (s) => s.display_name.trim() === specialityDisplayName
+        // Əgər "Digər (Təmir və tikinti)" formatındadırsa
+        if (
+          typeof data.profession_speciality === "string" &&
+          data.profession_speciality.startsWith("Digər (")
+        ) {
+          // "Digər" servisini tap
+          const otherService = fetchedAllServices.find(
+            (s) =>
+              s.display_name === "Digər" &&
+              s.category.display_name === data.profession_area
           );
 
-          if (!service) {
-            const normalizedSpeciality = specialityDisplayName.toLowerCase();
-            service = fetchedAllServices.find(
-              (s) =>
-                s.display_name.toLowerCase().trim() === normalizedSpeciality
+          if (otherService) {
+            foundServiceId = otherService.id;
+            setOtherServiceId(otherService.id);
+            isOtherService = true;
+
+            // Əgər custom_profession varsa onu götür, yoxdursa mötərizədəkiləri götür
+            setOtherSpecializationInput(
+              data.custom_profession ||
+                data.profession_speciality.match(/Digər \((.*?)\)/)[1] ||
+                ""
             );
           }
+        }
+        // Əgər normal servis seçilibsə
+        else {
+          const specialityDisplayName =
+            typeof data.profession_speciality === "string"
+              ? data.profession_speciality
+              : data.profession_speciality.display_name;
 
-          if (!service) {
-            service = fetchedAllServices.find((s) => {
-              if (s.category && s.category.display_name) {
-                const fullDisplayName = `${s.display_name.trim()} (${s.category.display_name.trim()})`;
-                return (
-                  fullDisplayName.toLowerCase() ===
-                  specialityDisplayName.toLowerCase()
-                );
-              }
-              return false;
-            });
-          }
-
-          if (
-            !service &&
-            specialityDisplayName.includes("(") &&
-            specialityDisplayName.includes(")")
-          ) {
-            const serviceNameOnly = specialityDisplayName
-              .substring(0, specialityDisplayName.indexOf("("))
-              .trim();
-            service = fetchedAllServices.find(
-              (s) =>
-                s.display_name.toLowerCase().trim() ===
-                serviceNameOnly.toLowerCase()
-            );
-          }
+          const service = fetchedAllServices.find(
+            (s) => s.display_name === specialityDisplayName
+          );
 
           if (service) {
             foundServiceId = service.id;
@@ -398,7 +394,6 @@ export default function Edit() {
         }
 
         setProfessionSpecialization(foundServiceId);
-        setOtherSpecializationInput("");
       } else {
         setProfessionSpecialization("");
         setOtherSpecializationInput("");
@@ -568,9 +563,21 @@ export default function Edit() {
       formData.append("profession_area", professionArea);
     }
 
-    if (professionSpecialization !== userData.profession_speciality?.id) {
-      formData.append("profession_speciality", professionSpecialization);
+    if (professionSpecialization === otherServiceId) {
+      formData.append("profession_speciality", otherServiceId);
+      formData.append("custom_profession", otherSpecializationInput);
+    } else {
+      if (selectedService) {
+        formData.append("profession_speciality", professionSpecialization);
+        formData.append("custom_profession", "");
+      }
     }
+
+    console.log(
+      "professionSpecialization type:",
+      typeof professionSpecialization
+    );
+    console.log("otherServiceId:", otherServiceId);
 
     if (Number(workExperience) !== userData.experience_years) {
       formData.append("experience_years", Number(workExperience));
@@ -725,7 +732,8 @@ export default function Edit() {
         fetchedCategories,
         fetchedAllServices,
         fetchedLanguages,
-        fetchedLocations
+        fetchedLocations,
+        otherServiceId
       );
     } catch (error) {
       console.error(
@@ -900,6 +908,15 @@ export default function Edit() {
   };
 
   const validateProfessionSpecialization = (specialization) => {
+    if (specialization === otherServiceId) {
+      if (!otherSpecializationInput.trim()) {
+        setProfessionSpecializationError("Zəhmət olmasa, ixtisası daxil edin.");
+        return false;
+      }
+      setProfessionSpecializationError("");
+      return true;
+    }
+
     if (!specialization) {
       setProfessionSpecializationError("Zəhmət olmasa, peşə ixtisasını seçin.");
       return false;
@@ -1025,8 +1042,15 @@ export default function Edit() {
   };
 
   const handleProfessionSpecializationChange = (e) => {
-    setProfessionSpecialization(e.target.value);
+    const value = e.target.value;
+    const numValue = value === "" ? "" : Number(value);
+
+    setProfessionSpecialization(numValue);
     setProfessionSpecializationError("");
+
+    if (numValue !== otherServiceId) {
+      setOtherSpecializationInput("");
+    }
   };
 
   const handleProfessionSpecializationBlur = () => {
@@ -1131,6 +1155,13 @@ export default function Edit() {
       setCategories(uniqueCategories);
       setAllServices(data);
 
+      const otherService = data.find(
+        (service) => service.display_name === "Diger"
+      );
+      if (otherService) {
+        setOtherServiceId(otherService.id);
+      }
+
       return { categories: uniqueCategories, services: data };
     } catch (error) {
       console.error("Kateqoriyalar yüklənərkən xəta:", error);
@@ -1141,6 +1172,8 @@ export default function Edit() {
   const handleProfessionAreaChange = (e) => {
     const selectedCategoryId = Number.parseInt(e.target.value);
     setProfessionArea(selectedCategoryId);
+    setProfessionSpecialization("");
+    setOtherSpecializationInput("");
 
     const currentSpecialization = allServices.find(
       (s) => s.id === professionSpecialization
@@ -1607,6 +1640,56 @@ export default function Edit() {
     setOpenPopup(false);
     document.body.style.overflowY = "auto";
   };
+
+  useEffect(() => {
+    console.log("Current professionSpecialization:", professionSpecialization);
+    console.log("Current otherServiceId:", otherServiceId);
+    console.log(
+      "Should show input:",
+      professionSpecialization === otherServiceId
+    );
+  }, [professionSpecialization, otherServiceId]);
+
+  useEffect(() => {
+    console.log("Filtered services:", filteredServices);
+    console.log("Other service ID:", otherServiceId);
+  }, [filteredServices, otherServiceId]);
+
+  const getServices = useCallback(() => {
+    if (!professionArea) return;
+
+    const filtered = allServices.filter(
+      (service) => service.category.id === professionArea
+    );
+
+    const otherService = filtered.find((item) => {
+      const lowerName = item.display_name.toLowerCase();
+      return (
+        lowerName.includes("digər") ||
+        lowerName.includes("diger") ||
+        lowerName.includes("other") ||
+        lowerName === "digər" ||
+        lowerName === "diger" ||
+        lowerName === "other"
+      );
+    });
+
+    if (otherService) {
+      console.log("Found 'Digər' service with ID:", otherService.id);
+      setOtherServiceId(otherService.id);
+      setFilteredServices(
+        filtered.filter((item) => item.id !== otherService.id)
+      );
+    } else {
+      console.log("No 'Digər' service found in this category");
+      setOtherServiceId(null);
+      setFilteredServices(filtered);
+    }
+  }, [professionArea, allServices]);
+
+  useEffect(() => {
+    getServices();
+  }, [professionArea, getServices]);
 
   console.log("Current openPopup state:", openPopup);
 
@@ -2170,6 +2253,9 @@ export default function Edit() {
                         {service.display_name}
                       </option>
                     ))}
+                    {otherServiceId && (
+                      <option value={otherServiceId}>Digər</option>
+                    )}
                   </select>
 
                   <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
@@ -2187,11 +2273,41 @@ export default function Edit() {
                   </div>
                 </div>
 
-                {professionSpecializationError && (
-                  <p className="text-[#EF4444] text-[.8rem] mt-1">
-                    {professionSpecializationError}
-                  </p>
-                )}
+                {otherServiceId !== null &&
+                  Number(professionSpecialization) ===
+                    Number(otherServiceId) && (
+                    <div className="mt-4">
+                      <div className="flex gap-[4px]">
+                        <img
+                          src={placesvg}
+                          alt="place-icon"
+                          className="w-[1.2rem] h-[1.2rem]"
+                        />
+                        <p className="text-[#656F83] text-[.8rem]">
+                          Digər peşə ixtisası
+                        </p>
+                        <p className="text-[#EF4444] text-[1rem]">*</p>
+                      </div>
+                      <input
+                        type="text"
+                        value={otherSpecializationInput}
+                        onChange={(e) =>
+                          setOtherSpecializationInput(e.target.value)
+                        }
+                        placeholder="Məsələn: Backend developer"
+                        className={`w-full h-[3rem] border ${
+                          professionSpecializationError
+                            ? "border-red-500"
+                            : "border-[#C3C8D1]"
+                        } rounded-lg outline-none p-2 text-[#1A4862] font-semibold`}
+                      />
+                      {professionSpecializationError && (
+                        <p className="text-[#EF4444] text-[.8rem] mt-1">
+                          {professionSpecializationError}
+                        </p>
+                      )}
+                    </div>
+                  )}
               </div>
 
               <div>
