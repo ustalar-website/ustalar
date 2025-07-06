@@ -136,12 +136,12 @@ function Register() {
   });
 
   const educationOptions = [
-      { id: 1, label: "Tam ali" },
-      { id: 2, label: "Natamam ali" },
-      { id: 3, label: "Orta" },
-      { id: 4, label: "Peşə təhsili" },
-      { id: 5, label: "Orta ixtisas təhsili" },
-      { id: 0, label: "Yoxdur" },
+    { id: 1, label: "Tam ali" },
+    { id: 2, label: "Natamam ali" },
+    { id: 3, label: "Orta" },
+    { id: 4, label: "Peşə təhsili" },
+    { id: 5, label: "Orta ixtisas təhsili" },
+    { id: 0, label: "Yoxdur" },
   ];
 
   const [socialMediaLinks, setSocialMediaLinks] = useState({
@@ -383,7 +383,7 @@ function Register() {
       errors.cities = getErrorMessage("cities", formData.cities);
     } else if (step === 3) {
       errors.education = getErrorMessage("education", formData.education);
-      if (formData.education !== "" && formData.education !== 6) {
+      if (formData.education !== "" && formData.education !== 0) {
         errors.educationField = getErrorMessage(
           "educationField",
           formData.educationField
@@ -1309,7 +1309,7 @@ function Register() {
                 </p>
               )}
             </div>
-            {formData.education !== "" && formData.education !== 6 && (
+            {formData.education !== "" && formData.education !== 0 && (
               <div className="mb-4">
                 <label className="block text-sm text-cyan-900 font-medium mb-1">
                   Təhsil ixtisası <span className="text-red-500">*</span>

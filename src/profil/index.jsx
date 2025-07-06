@@ -460,19 +460,24 @@ export const InfoCards = ({ profileData, isUseFor }) => {
           <span className="flex flex-col">
             <span className="text-gray-500">Təhsil:</span>
             <span className="font-semibold text-cyan-900 text-[16px]">
-              {profileData?.education}
+              {profileData?.education === "0"
+                ? "Yoxdur"
+                : profileData?.education}
             </span>
           </span>
         </p>
-        <p className="flex gap-2 text-sm">
-          <MdOutlineSchool className="text-cyan-600 text-[25px] mt-1" />
-          <span className="flex flex-col">
-            <span className="text-gray-500">Təhsil ixtisası:</span>
-            <span className="font-semibold text-cyan-900 text-[16px]">
-              {profileData?.education_speciality}
+
+        {profileData?.education && profileData?.education !== "0" && (
+          <p className="flex gap-2 text-sm">
+            <MdOutlineSchool className="text-cyan-600 text-[25px] mt-1" />
+            <span className="flex flex-col">
+              <span className="text-gray-500">Təhsil ixtisası:</span>
+              <span className="font-semibold text-cyan-900 text-[16px]">
+                {profileData?.education_speciality || "Yoxdur"}
+              </span>
             </span>
-          </span>
-        </p>
+          </p>
+        )}
         <p className="flex gap-2 text-sm">
           <MdTranslate className="text-cyan-600 text-[25px] mt-1" />
           <span className="flex flex-col">
