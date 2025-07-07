@@ -276,7 +276,7 @@ function Register() {
     } else if (name === "password") {
       return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\-_+])[A-Za-z\d!@#\-_+]{8,15}$/;
     } else if (name === "custom_profession") {
-      return /^[AaBbCcÇçDdEeƏəFfGgĞğHhXxIıİiJjKkQqLlMmNnOoÖöPpRrSsŞşTtUuÜüVvYyZz ]{3,40}$/;
+      return /^[AaBbCcÇçDdEeƏəFfGgĞğHhXxIıİiJjKkQqLlMmNnOoÖöPpRrSsŞşTtUuÜüVvYyZz ]{2,40}$/;
     }
     return null;
   };
