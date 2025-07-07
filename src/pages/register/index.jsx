@@ -270,7 +270,7 @@ function Register() {
 
   const regexps = (name) => {
     if (name === "first_name" || name === "last_name") {
-      return /^[AaBbCcÇçDdEeƏəFfGgĞğHhXxIıİiJjKkQqLlMmNnOoÖöPpRrSsŞşTtUuÜüVvYyZz]{3,20}$/;
+      return /^[AaBbCcÇçDdEeƏəFfGgĞğHhXxIıİiJjKkQqLlMmNnOoÖöPpRrSsŞşTtUuÜüVvYyZz]{2,20}$/;
     } else if (name === "mobile_number") {
       return /^(50|51|55|70|77|99|10|60)\d{7}$/;
     } else if (name === "password") {
@@ -1301,17 +1301,17 @@ function Register() {
               <label className="block text-sm text-cyan-900 font-medium mb-1 py-2">
                 Təhsil <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {educationOptions.map((option) => (
                   <label
                     key={option.id}
-                    className="flex items-center gap-2 text-sm text-cyan-900"
+                    className="flex items-start gap-2 text-sm text-cyan-900 break-words"
                   >
                     <input
                       type="radio"
                       name="education"
                       value={option.id}
-                      className="accent-cyan-700 w-6 h-4 text-cyan-900 border-gray-300"
+                      className={`accent-cyan-700 mt-1`}
                       checked={formData.education === option.id}
                       onChange={(e) => {
                         setFormData((prev) => ({
@@ -1363,11 +1363,11 @@ function Register() {
               <label className="block text-sm text-cyan-900 font-medium mb-1 py-2">
                 Dil bilikləri <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 ">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4">
                 {languageOptions.map((lang) => (
                   <label
                     key={lang.id}
-                    className="flex items-center gap-1 text-sm text-cyan-900 "
+                    className="flex items-center gap-1 text-sm text-cyan-900"
                   >
                     <input
                       type="checkbox"
@@ -1376,7 +1376,9 @@ function Register() {
                       checked={formData.languages.includes(lang.id)}
                       onChange={handleLanguageChange}
                       onBlur={handleBlurValidation}
-                      className="accent-cyan-700 w-4 h-4 border-gray-300 "
+                      className={`accent-cyan-700 w-4 h-4 border-gray-300 ${
+                        lang.label === "İngilis" ? "ml-5" : ""
+                      }`}
                     />
                     {lang.label}
                   </label>
@@ -1487,12 +1489,7 @@ function Register() {
                     name={network.name}
                     className="w-full p-3 outline-none cursor-pointer text-cyan-700"
                     onChange={handleSocialMediaLinksValue}
-                    onClick={(e) => {
-                      const url = e.target.value;
-                      if (url.startsWith("http")) {
-                        window.open(url, "_blank");
-                      }
-                    }}
+                    value={socialMediaLinks[network.name]}
                   />
                 </div>
               ))}
@@ -1579,14 +1576,14 @@ function Register() {
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="border border-[#1A4852] text-[#1A4852] py-2 px-4 rounded-md hover:bg-gray-100 w-[48%] flex justify-center items-center"
+                className="border border-[#1A4852] text-[#1A4852] py-2 px-4 rounded-md hover:bg-gray-100 w-[38%] flex justify-center items-center text-sm"
               >
                 <IoIosArrowBack />
                 Geri
               </button>
               <button
                 type="submit"
-                className="flex items-center justify-center bg-[rgba(26,72,98,1)] text-white text-sm px-6 py-2 rounded-md hover:bg-[#153b45] w-[48%]"
+                className="flex items-center justify-center bg-[rgba(26,72,98,1)] text-white text-sm px-4 py-2 rounded-md hover:bg-[#153b45] w-[58%]"
                 onClick={handleFinalSubmit}
               >
                 Qeydiyyatı tamamla
