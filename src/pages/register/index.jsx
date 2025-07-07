@@ -1185,7 +1185,7 @@ function Register() {
                     if (!isLetter && !isControlKey) e.preventDefault();
                   }}
                   placeholder="Daxil edin..."
-                  className={`w-full border p-2 rounded-md text-cyan-900 ${
+                  className={`w-full border p-2 rounded-md text-cyan-900 cursor-text ${
                     formDataErrors.custom_profession
                       ? "border-red-600"
                       : "border-gray-200"

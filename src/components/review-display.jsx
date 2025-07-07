@@ -46,7 +46,7 @@ export default function ReviewDisplay({ masterId }) {
 
       try {
         const response = await fetch(
-          `https://masters-1.onrender.com/api/v1/professionals/${masterId}/reviews/`
+          `https://api.peshekar.online/v1/professionals/${masterId}/reviews/`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

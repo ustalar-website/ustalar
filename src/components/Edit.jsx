@@ -1880,46 +1880,35 @@ export default function Edit() {
                     showYearDropdown
                     dropdownMode="select"
                     calendarStartDay={1}
-                    onChangeRaw={(e) => {
-                      const val = e.target.value.replace(/\D/g, "").slice(0, 8);
-                      let formatted = "";
-
-                      if (val.length >= 4) {
-                        formatted += val.slice(0, 4);
-                        if (val.length >= 6) {
-                          formatted += "/" + val.slice(4, 6);
-                          if (val.length > 6) {
-                            formatted += "/" + val.slice(6, 8);
-                          }
-                        } else if (val.length > 4) {
-                          formatted += "/" + val.slice(4);
-                        }
-                      } else {
-                        formatted = val;
-                      }
-
-                      e.target.value = formatted;
-                      setBirthDate(formatted);
-                      validateBirthDate(formatted);
-                    }}
-                    onKeyDown={(e) => {
-                      const allowedKeys = [
-                        "Backspace",
-                        "ArrowLeft",
-                        "ArrowRight",
-                        "Delete",
-                        "Tab",
-                      ];
-                      if (
-                        !/[0-9]/.test(e.key) &&
-                        !allowedKeys.includes(e.key)
-                      ) {
-                        e.preventDefault();
-                      }
-                    }}
                     className={`w-[27.5rem] h-[3rem] border ${
                       birthDateError ? "border-red-500" : "border-[#C3C8D1]"
                     } rounded-lg outline-none p-2 text-[#1A4862] font-semibold`}
+                    onChangeRaw={(e) => {
+                      if (!birthDate) {
+                        const val = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 8);
+                        let formatted = "";
+
+                        if (val.length >= 4) {
+                          formatted += val.slice(0, 4);
+                          if (val.length >= 6) {
+                            formatted += "/" + val.slice(4, 6);
+                            if (val.length > 6) {
+                              formatted += "/" + val.slice(6, 8);
+                            }
+                          } else if (val.length > 4) {
+                            formatted += "/" + val.slice(4);
+                          }
+                        } else {
+                          formatted = val;
+                        }
+
+                        e.target.value = formatted;
+                        setBirthDate(formatted);
+                        validateBirthDate(formatted);
+                      }
+                    }}
                   />
                   {birthDateError && (
                     <p className="text-[#EF4444] text-[.8rem] mt-1">
