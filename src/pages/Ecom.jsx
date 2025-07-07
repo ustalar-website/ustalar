@@ -286,7 +286,7 @@ export default function Ecom() {
     style={{ boxShadow: '0 1px 4px 0 rgba(60, 60, 60, 0.08)' }}
   >
     <div className="flex flex-col items-start pr-8">
-      <p className="text-lg font-bold">{selectedSort}</p>
+      <p className="text-lg font-light">{selectedSort}</p>
     </div>
     <ArrowUpDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
   </button>
