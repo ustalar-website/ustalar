@@ -5,9 +5,10 @@ import {
   RotateCcw,
   ZoomIn,
   ZoomOut,
+  XCircle,
 } from "lucide-react";
 
-const ImageEditor = ({ image, onSave, onCancel }) => {
+const ImageEditor = ({ image, onSave, onCancel, onDelete }) => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -64,8 +65,8 @@ const ImageEditor = ({ image, onSave, onCancel }) => {
     const centerX = size / 2;
     const centerY = size / 2;
 
-    ctx.save(); 
-    ctx.translate(centerX, centerY); 
+    ctx.save();
+    ctx.translate(centerX, centerY);
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.translate(-centerX, -centerY);
 
@@ -74,7 +75,7 @@ const ImageEditor = ({ image, onSave, onCancel }) => {
 
     ctx.drawImage(imageElement, drawX, drawY, scaledWidth, scaledHeight);
 
-    ctx.restore(); 
+    ctx.restore();
 
     ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
     ctx.lineWidth = 2;
@@ -128,7 +129,7 @@ const ImageEditor = ({ image, onSave, onCancel }) => {
     if (!canvas) return;
 
     const finalCanvas = document.createElement("canvas");
-    finalCanvas.width = 300; 
+    finalCanvas.width = 300;
     finalCanvas.height = 300;
     const finalCtx = finalCanvas.getContext("2d");
 
@@ -222,8 +223,18 @@ const ImageEditor = ({ image, onSave, onCancel }) => {
           >
             Sıfırla
           </button>
+          <button
+            onClick={() => {
+              if (onDelete) onDelete();
+              onCancel();
+            }}
+            className="px-3 py-1 bg-gray-100 hover:bg-red-200 text-red-700  rounded-lg text-sm flex items-center gap-1   transition-colors"
+            title="Sil"
+          >
+            <XCircle size={16} />
+            Sil
+          </button>
         </div>
-        
         <p className="text-sm text-gray-600 mb-6">
           Şəkli sürüşdürərək yerini dəyişin və böyüklüyünü tənzimləyin
         </p>{" "}

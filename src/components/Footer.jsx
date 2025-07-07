@@ -10,7 +10,7 @@ const Footer = () => {
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold">Paputi</h2>
+            <h2 className="text-2xl font-bold"></h2>
             <p className="text-gray-300 max-w-sm leading-relaxed">
               Azərbaycanda peşəkar ustaları müştərilərlə birləşdirən platforma
             </p>

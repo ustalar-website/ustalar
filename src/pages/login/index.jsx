@@ -247,7 +247,7 @@ function Login() {
     <div className="min-h-screen flex flex-col">
       <div className="bg-[#1A4862] px-6 py-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-white text-xl font-bold">Paputi</h1>
+          <h1 className="text-white text-xl font-bold"></h1> 
           <button
             onClick={handleRegisterClick}
             className="text-white text-sm hover:underline"

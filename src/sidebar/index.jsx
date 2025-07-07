@@ -56,7 +56,7 @@ const Sidebar = () => {
         }}
       >
         <div className="flex w-full justify-between items-center">
-          <h1 className="text-2xl font-bold mb-6">PAPUTİ.AZ</h1>
+          <h1 className="text-2xl font-bold mb-6"></h1>
           {isSidebarOpen && (
             <i
               onClick={() => setIsSidebarOpen(false)}

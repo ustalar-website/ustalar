@@ -205,6 +205,12 @@ function Register() {
     }
   };
 
+  const handleImageEditorDelete = () => {
+    setFormData((prev) => ({ ...prev, profile_image: null }));
+    setImageToEdit(null);
+    setShowEditor(false);
+  };
+
   const handleImageEditorSave = (editedFile) => {
     setFormData((prev) => ({ ...prev, profile_image: editedFile }));
     setImageToEdit(null);
@@ -744,7 +750,8 @@ function Register() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="bg-[rgba(26,72,98,1)] h-[100px] sticky top-0 left-0 z-50 flex justify-between px-[20px] py-[20px]">
-        <h2 className="text-white font-semibold text-[30px]">Paputi</h2>
+        <h2 className="text-white font-semibold text-[30px]"></h2> 
+        BURADA OLACAQ!
         <p className="text-white cursor-pointer" onClick={handleClick}>
           Hesabınız var? Daxil olun
         </p>
@@ -1619,6 +1626,7 @@ function Register() {
           image={imageToEdit}
           onSave={handleImageEditorSave}
           onCancel={handleImageEditorCancel}
+          onDelete={handleImageEditorDelete}
         />
       )}
 
