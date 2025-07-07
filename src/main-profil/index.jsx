@@ -143,7 +143,7 @@ const ProfilePage = () => {
       <InfoCards profileData={data} isUseFor="User Profile" />
       <hr className="mt-8 border-cyan-900 " />
       <ReviewProfession />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };

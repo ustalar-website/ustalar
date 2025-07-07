@@ -100,15 +100,8 @@ export default function ReviewForm({ masterId }) {
     } else {
       setTagError("");
     }
-
-    if (images.length === 0) {
-      setImageError("Zəhmət olmasa ən azı bir şəkil seçin.");
-      setImageUploadValidationError(true);
-      isValid = false;
-    } else {
       setImageError("");
       setImageUploadValidationError(false);
-    }
 
     if (!isValid) {
       setSubmitStatus({
@@ -144,7 +137,8 @@ export default function ReviewForm({ masterId }) {
 
     try {
       const response = await fetch(
-        `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/create/`,
+        `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/`
+,
         {
           method: "POST",
           headers: headers,
