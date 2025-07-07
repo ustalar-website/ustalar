@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './card.css';
 import { FiChevronDown, FiChevronUp, FiMapPin, FiStar } from 'react-icons/fi';
 import { FiClock } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 const Card = () => {
   const [professionals, setProfessionals] = useState([]);
   const [displayedProfessionals, setDisplayedProfessionals] = useState([]);
@@ -22,6 +23,12 @@ const Card = () => {
       setDisplayedProfessionals(professionals.slice(0, initialDisplayCount));
     }
   }, [professionals, showAll]);
+
+  const navigate = useNavigate()
+
+  const handleClickCard = (masterId) => {
+    navigate(`/master/${masterId}`)
+  }
 
   const fetchProfessionals = async (url = 'https://api.peshekar.online/api/v1/professionals/') => {
     setIsLoading(true);
@@ -81,7 +88,7 @@ const Card = () => {
       ) : (
         <div className="listings-grid">
           {displayedProfessionals.map((professional) => (
-            <div className="listing-card" key={professional.id}>
+            <div onClick={()=>handleClickCard(professional.id)} className="listing-card cursor-pointer" key={professional.id}>
               <div className="card-image-container">
                 <img
                   src={professional.image}

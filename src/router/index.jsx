@@ -11,6 +11,7 @@ import Edit from "../components/Edit";
 import Review from "../components/review";
 import ChangePassword from "../components/ChangePassword";
 import MainPage from "../components/MainPage";
+import ReviewForm from "../components/review-form";
 
 export const router = createBrowserRouter([
   {
@@ -61,5 +62,9 @@ export const router = createBrowserRouter([
   {
     path: "/master/:masterId",
     element: <MainPage />,
+  },
+   {
+    path: "/professionals/:id",
+    element: <ReviewForm />,
   },
 ]);
