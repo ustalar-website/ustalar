@@ -3,7 +3,6 @@ import Register from "../pages/register";
 import Login from "../pages/login";
 import Ecom from "../pages/Ecom";
 import Home from "../home/All";
-import React from "react";
 import ReviewPage from "../pages/ReviewPage";
 import ProfilePage from "../profil";
 import Rey from "../pages/rey";
@@ -12,6 +11,7 @@ import Review from "../components/review";
 import ChangePassword from "../components/ChangePassword";
 import MainPage from "../components/MainPage";
 import ReviewForm from "../components/review-form";
+import React from "react";
 
 export const router = createBrowserRouter([
   {
@@ -19,12 +19,8 @@ export const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "ecom",
+    path: "/ecom",
     element: <Ecom />,
-  },
-  {
-    path: "/reviews",
-    element: <ReviewPage />,
   },
   {
     path: "/reviews/:masterId",
@@ -46,6 +42,8 @@ export const router = createBrowserRouter([
     path: "/rey",
     element: <Rey />,
   },
+
+  //! bu profile hissesindeki review-dur
   {
     path: "/review/:masterId",
     element: <Review />,
@@ -54,7 +52,6 @@ export const router = createBrowserRouter([
     path: "/edit",
     element: <Edit />,
   },
-
   {
     path: "/reset",
     element: <ChangePassword />,
@@ -63,8 +60,9 @@ export const router = createBrowserRouter([
     path: "/master/:masterId",
     element: <MainPage />,
   },
-   {
-    path: "/professionals/:id",
+
+  {
+    path: "/master/:masterId/reviews",
     element: <ReviewForm />,
   },
 ]);

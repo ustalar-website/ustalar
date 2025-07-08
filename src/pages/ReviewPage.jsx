@@ -1,18 +1,24 @@
-import React from "react"
-import ReviewDisplay from "../components/review-display.jsx"
-import ReviewForm from "../components/review-form.jsx"
 import { useParams } from "react-router-dom";
+import React, { useEffect } from "react";
+
 
 export default function ReviewPage() {
   const { masterId } = useParams();
+
+  useEffect(() => {
+    console.log("Master ID:", masterId);
+    if (!masterId) {
+      console.error("Master ID is undefined!");
+    }
+  }, [masterId]);
+
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100">
-      <div className="w-full max-w-[1400px] mb-10">
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1">
         <ReviewDisplay masterId={masterId} />
-      </div>
-      <div className="w-full max-w-[1400px]">
         <ReviewForm masterId={masterId} />
       </div>
-    </main>
-  )
+    </div>
+  );
 }

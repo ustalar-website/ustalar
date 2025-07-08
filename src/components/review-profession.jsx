@@ -1,15 +1,14 @@
 import { Star } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Footer from "./Footer";
-import Sidebar from "../sidebar";
 
 const getImageUrl = (path) => {
   if (!path) return "/placeholder.svg";
   if (path.startsWith("http://") || path.startsWith("https://")) {
     return path;
   }
-  return `https://api.peshekar.online/api/v1/${path}`;
+  return `https://api.peshekar.online${path}`;
 };
 
 const TAG_DISPLAY_MAPPING = {
@@ -25,7 +24,8 @@ const TAG_DISPLAY_MAPPING = {
   patient: "#Səbirli",
 };
 
-export default function ReviewProfession({ masterId }) {
+export default function ReviewProfession() {
+  const { masterId } = useParams();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,11 +45,9 @@ export default function ReviewProfession({ masterId }) {
       setReviews([]);
       return;
     }
-
     setLoading(true);
     setError(null);
     setReviews([]);
-
     try {
       const sortParam =
         sortOptions.find((option) => option.value === selectedSortOption)
@@ -57,7 +55,6 @@ export default function ReviewProfession({ masterId }) {
       const url = `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/${
         sortParam ? `?ordering=${sortParam}` : ""
       }`;
-
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -378,7 +375,7 @@ export default function ReviewProfession({ masterId }) {
         )}
         <div className="flex justify-end mt-4 mr-10">
           <Link
-            to={`/reviews/${masterId}`}
+            to={`/master/${masterId}/reviews`}
             className="px-6 py-3 bg-cyan-900 hover:bg-cyan-800 text-white rounded-md  text-center"
           >
             Rəyinizi bizimlə bölüşün

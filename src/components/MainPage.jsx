@@ -1,17 +1,19 @@
-import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import React from "react";
+import { useParams } from "react-router-dom";
 import Navbar from "../profil-navbar";
 import MainProfil from "../main-profil";
 
-export default function MainPage() {
+export default function MasterProfilePage() {
+  const { masterId } = useParams();
 
-  useEffect(()=>{
-    window.scrollTo(0,0)
-  },[])
+  if (!masterId) {
+    return <div>Xəta: Master ID tapılmadı</div>;
+  }
+
   return (
-    <div className="">
-      <Navbar />
-      <MainProfil />
+    <div className="bg-gray-50 min-h-screen">
+      <Navbar masterId={masterId} />
+      <MainProfil masterId={masterId} />
     </div>
   );
 }

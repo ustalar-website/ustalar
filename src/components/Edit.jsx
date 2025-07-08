@@ -352,12 +352,10 @@ export default function Edit() {
         let foundServiceId = "";
         let isOtherService = false;
 
-        // Əgər "Digər (Təmir və tikinti)" formatındadırsa
         if (
           typeof data.profession_speciality === "string" &&
           data.profession_speciality.startsWith("Digər (")
         ) {
-          // "Digər" servisini tap
           const otherService = fetchedAllServices.find(
             (s) =>
               s.display_name === "Digər" &&
@@ -369,7 +367,6 @@ export default function Edit() {
             setOtherServiceId(otherService.id);
             isOtherService = true;
 
-            // Əgər custom_profession varsa onu götür, yoxdursa mötərizədəkiləri götür
             setOtherSpecializationInput(
               data.custom_profession ||
                 data.profession_speciality.match(/Digər \((.*?)\)/)[1] ||
@@ -377,7 +374,7 @@ export default function Edit() {
             );
           }
         }
-        // Əgər normal servis seçilibsə
+
         else {
           const specialityDisplayName =
             typeof data.profession_speciality === "string"
@@ -1640,15 +1637,7 @@ export default function Edit() {
     setOpenPopup(false);
     document.body.style.overflowY = "auto";
   };
-
-  useEffect(() => {
-    console.log("Current professionSpecialization:", professionSpecialization);
-    console.log("Current otherServiceId:", otherServiceId);
-    console.log(
-      "Should show input:",
-      professionSpecialization === otherServiceId
-    );
-  }, [professionSpecialization, otherServiceId]);
+  
 
   useEffect(() => {
     console.log("Filtered services:", filteredServices);
@@ -1964,7 +1953,6 @@ export default function Edit() {
                   <p className="text-[#EF4444] text-[1rem]">*</p>
                 </div>
                 <div>
-                  {/* Köhnə şifrə */}
                   <div className="relative w-[27.5rem]">
                     <input
                       type={showCurrentPassword ? "text" : "password"}
@@ -1993,7 +1981,6 @@ export default function Edit() {
                       {passwordError}
                     </p>
                   )}
-                  {/* Yeni şifrə */}
                   {showPasswordChangeFields && (
                     <>
                       <div>
@@ -2038,7 +2025,6 @@ export default function Edit() {
                         </div>
                       </div>
 
-                      {/* Yeni şifrə təsdiqi */}
                       <div>
                         <div className="flex gap-[4px]">
                           <img

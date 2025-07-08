@@ -1,5 +1,3 @@
-"use client";
-
 import { Star } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import Sidebar from "../sidebar";
@@ -42,7 +40,7 @@ export default function ReviewDisplay() {
 
   const fetchReviews = useCallback(async () => {
     if (!masterId) {
-      setError("Master ID mövcud deyil. Rəylər yüklənmədi.");
+      setError("Rəylər yüklənmədi.");
       setLoading(false);
       setReviews([]);
       return;
@@ -77,39 +75,33 @@ export default function ReviewDisplay() {
       console.log("Fetched reviews data:", data);
       const formattedReviews = (data.results || []).map((apiReview) => ({
         id: apiReview.id,
-        reviewerName: apiReview.user
-          ? apiReview.user.username ||
-            `${apiReview.user.first_name || ""} ${
-              apiReview.user.last_name || ""
-            }`.trim() ||
-            "Anonim hesab"
-          : "Anonim hesab",
+        reviewerName: apiReview.username || "Anonim hesab",
+
         isAnonymous:
           !apiReview.user ||
           (!apiReview.user.username &&
             !apiReview.user.first_name &&
             !apiReview.user.last_name),
         rating: apiReview.rating,
+
         date: new Date(apiReview.created_at).toLocaleDateString("az-AZ", {
           year: "numeric",
           month: "long",
           day: "numeric",
         }),
+
         text: apiReview.comment,
-        tags: apiReview.tags
-          ? Object.entries(apiReview.tags)
-              .filter(([, value]) => value === true)
-              .map(([key]) => TAG_DISPLAY_MAPPING[key])
-              .filter(Boolean)
-          : [],
-        imageUrl: getImageUrl(
-          apiReview.review_images && apiReview.review_images.length > 0
-            ? apiReview.review_images[0].image
-            : undefined
-        ),
-        profileImageUrl: getImageUrl(
-          apiReview.user ? apiReview.user.profile_image : undefined
-        ),
+        
+        tags: Object.entries(TAG_DISPLAY_MAPPING)
+          .filter(([key]) => apiReview[key] === true)
+          .map(([, display]) => display),
+
+        imageUrl:
+          apiReview.images && apiReview.images.length > 0
+            ? apiReview.images[0].image || apiReview.images[0].image_url
+            : undefined,
+
+        profileImageUrl: getImageUrl(apiReview.profile_image),
       }));
       setReviews(formattedReviews);
     } catch (err) {
@@ -395,14 +387,14 @@ export default function ReviewDisplay() {
             </div>
           )}
         </div>
-        {/* <div className="flex justify-end mt-4 mr-20">
-        <Link
+        <div className="flex justify-end mt-4 mr-20">
+          {/* <Link
           to={`/reviews/${masterId}`}
           className="px-6 py-3 bg-cyan-900 hover:bg-cyan-800 text-white rounded-md  text-center"
         >
           Rəyinizi bizimlə bölüşün
-        </Link>
-      </div> */}
+        </Link> */}
+        </div>
       </div>
     </div>
   );

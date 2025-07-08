@@ -1,7 +1,9 @@
 import React, { useRef, useState } from "react";
 import { ImageIcon, Star } from "lucide-react";
+import { useParams } from "react-router-dom";
 
-export default function ReviewForm({ masterId }) {
+export default function ReviewForm() {
+  const { masterId } = useParams();
   const inputref = useRef(null);
   const handleclick = () => inputref.current?.click();
 
@@ -100,8 +102,8 @@ export default function ReviewForm({ masterId }) {
     } else {
       setTagError("");
     }
-      setImageError("");
-      setImageUploadValidationError(false);
+    setImageError("");
+    setImageUploadValidationError(false);
 
     if (!isValid) {
       setSubmitStatus({
@@ -137,8 +139,7 @@ export default function ReviewForm({ masterId }) {
 
     try {
       const response = await fetch(
-        `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/`
-,
+        `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/create`,
         {
           method: "POST",
           headers: headers,

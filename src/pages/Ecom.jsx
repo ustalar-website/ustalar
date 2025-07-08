@@ -4,7 +4,7 @@ import { CheckCircle, User, Star, ArrowUpDown, Search } from "lucide-react";
 
 import Footer from "../components/Footer";
 import Header from "../home/Components/Header";
-import NewEcomSideBar from "../components/NewEcomSideBar"
+import NewEcomSideBar from "../components/NewEcomSideBar";
 
 export default function Ecom() {
   const [professionals, setProfessionals] = useState([]);
@@ -34,7 +34,6 @@ export default function Ecom() {
   const [cityMap, setCityMap] = useState({});
 
   const sortOptions = [
-    
     { label: "Sənə ən yaxın", value: "closest" },
     { label: "Ən son yüklənən", value: "newest" },
     { label: "Ən reytinqli", value: "top_rated" },
@@ -185,9 +184,7 @@ export default function Ecom() {
         }
         const data = await response.json();
 
-        const filteredResults = (data.results || []).filter(
-          (p) => (p.full_name)
-        );
+        const filteredResults = (data.results || []).filter((p) => p.full_name);
 
         if (loadMore) {
           setProfessionals((prev) => [...prev, ...filteredResults]);
@@ -240,25 +237,25 @@ export default function Ecom() {
     setSidebarFilters(filters);
   }, []);
 
-    console.log(professionals)
+  console.log(professionals);
   return (
     <>
-    <Header/>
-    <section className="ecom-section flex min-h-screen px-11 pt-24 pb-44 gap-19 border-t border-gray-500">
-      <div className="ecom-side-bar">
-        <NewEcomSideBar onFilterChange={handleSidebarFilterChange} />
-      </div>
-      <div className="ecom-right flex flex-col flex-1">
-        <div className="ecom-right-top mb-14">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="font-bold text-3xl flex items-center gap-5">
-              Peşəkarlar
-              <span className="text-xl text-[#525B6B] font-semibold">
-                axtarış nəticələri ({totalProfessionals})
-              </span>
-            </h1>
-            <div className="relative inline-block text-left"> 
-              {/* <button
+      <Header />
+      <section className="ecom-section flex min-h-screen px-11 pt-24 pb-44 gap-19 border-t border-gray-500">
+        <div className="ecom-side-bar">
+          <NewEcomSideBar onFilterChange={handleSidebarFilterChange} />
+        </div>
+        <div className="ecom-right flex flex-col flex-1">
+          <div className="ecom-right-top mb-14">
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="font-bold text-3xl flex items-center gap-5">
+                Peşəkarlar
+                <span className="text-xl text-[#525B6B] font-semibold">
+                  axtarış nəticələri ({totalProfessionals})
+                </span>
+              </h1>
+              <div className="relative inline-block text-left">
+                {/* <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="inline-flex justify-between items-center gap-1 text-lg w-56 p-4 bg-white border border-gray-300 rounded-lg shadow-sm font-bold hover:bg-gray-50 "
               >
@@ -266,7 +263,7 @@ export default function Ecom() {
                 <ArrowUpDown className="w-4 h-4" />
               </button> */}
 
-              {/* <div className="flex justify-end items-center w-full h-full">
+                {/* <div className="flex justify-end items-center w-full h-full">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="relative w-56 p-3 bg-white border border-gray-300 rounded-lg shadow hover:shadow-md hover:bg-gray-50 transition-shadow duration-200"
@@ -280,37 +277,37 @@ export default function Ecom() {
               </div> */}
 
                 <div className="flex justify-end items-center w-full h-full">
-  <button
-    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-    className="relative w-56 p-3 bg-white border border-gray-300 rounded-lg shadow hover:shadow-md hover:bg-gray-50 transition-shadow duration-200"
-    style={{ boxShadow: '0 1px 4px 0 rgba(60, 60, 60, 0.08)' }}
-  >
-    <div className="flex flex-col items-start pr-8">
-      <p className="text-lg font-light">{selectedSort}</p>
-    </div>
-    <ArrowUpDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
-  </button>
-</div>
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                  {sortOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => handleSortSelect(option)}
-                      className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                        selectedSort === option.label
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="relative w-56 p-3 bg-white border border-gray-300 rounded-lg shadow hover:shadow-md hover:bg-gray-50 transition-shadow duration-200"
+                    style={{ boxShadow: "0 1px 4px 0 rgba(60, 60, 60, 0.08)" }}
+                  >
+                    <div className="flex flex-col items-start pr-8">
+                      <p className="text-lg font-light">{selectedSort}</p>
+                    </div>
+                    <ArrowUpDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
+                  </button>
                 </div>
-              )}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                    {sortOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleSortSelect(option)}
+                        className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
+                          selectedSort === option.label
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-          {/* <div className="relative mb-7">
+            {/* <div className="relative mb-7">
             <input
               type="text"
               placeholder="Peşəkar axtar..."
@@ -320,7 +317,7 @@ export default function Ecom() {
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
           </div> */}
-          {/* <div className="flex gap-5 mt-7">
+            {/* <div className="flex gap-5 mt-7">
             <button
               onClick={() => toggleFilter("experienced")}
               className={`flex gap-2.5 items-center px-4 py-2 border border-[#1A4862] rounded-3xl transition-colors ${
@@ -352,8 +349,8 @@ export default function Ecom() {
               Ən çox baxılanlar <Star className="w-4 h-4" />
             </button>
           </div> */}
-        </div>
-        {/* <div className="flex flex-col items-center justify-center gap-14">
+          </div>
+          {/* <div className="flex flex-col items-center justify-center gap-14">
           {loading && professionals.length === 0 ? (
             <div className="text-center text-lg text-gray-600">
               Peşəkarlar yüklənir...
@@ -398,49 +395,48 @@ export default function Ecom() {
           )}
         </div> */}
           <div className="flex flex-col gap-14">
-  {loading && professionals.length === 0 ? (
-    <div className="text-center text-lg text-gray-600">
-      Peşəkarlar yüklənir...
-    </div>
-  ) : error ? (
-    <div className="text-center text-lg text-red-500">
-      Xəta: {error}
-    </div>
-  ) : professionals.length === 0 ? (
-    <div className="text-center text-lg text-gray-600">
-      Heç bir peşəkar tapılmadı.
-    </div>
-  ) : (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
-      {professionals.map((professional) => (
-        <EcomCard
-          key={professional.id}
-          professional={professional}
-          categoryName={professional.profession_area}
-          specialityName={
-            serviceMap[professional.profession_speciality]
-          }
-          cityNames={professional.cities || []}
-        />
-      ))}
-    </div>
-  )}
-  {nextPageUrl && (
-    <div className="flex justify-center">
-      <button
-        onClick={handleLoadMore}
-        disabled={loading}
-        className="border border-[#1A4862] transition-all bg-white hover:bg-[#1A4862] py-3 px-16 rounded-lg text-[#1A4862] hover:text-white cursor-pointer"
-      >
-        {loading ? "Yüklənir..." : "Daha çoxuna bax"}
-      </button>
-    </div>
-  )}
-</div>
-      </div>
-      
-    </section>
-    <Footer/>
-        </>
+            {loading && professionals.length === 0 ? (
+              <div className="text-center text-lg text-gray-600">
+                Peşəkarlar yüklənir...
+              </div>
+            ) : error ? (
+              <div className="text-center text-lg text-red-500">
+                Xəta: {error}
+              </div>
+            ) : professionals.length === 0 ? (
+              <div className="text-center text-lg text-gray-600">
+                Heç bir peşəkar tapılmadı.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
+                {professionals.map((professional) => (
+                  <EcomCard
+                    key={professional.id}
+                    professional={professional}
+                    categoryName={professional.profession_area}
+                    specialityName={
+                      serviceMap[professional.profession_speciality]
+                    }
+                    cityNames={professional.cities || []}
+                  />
+                ))}
+              </div>
+            )}
+            {nextPageUrl && (
+              <div className="flex justify-center">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loading}
+                  className="border border-[#1A4862] transition-all bg-white hover:bg-[#1A4862] py-3 px-16 rounded-lg text-[#1A4862] hover:text-white cursor-pointer"
+                >
+                  {loading ? "Yüklənir..." : "Daha çoxuna bax"}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </>
   );
 }
