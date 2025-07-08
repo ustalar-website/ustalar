@@ -751,7 +751,6 @@ function Register() {
     <div className="flex flex-col min-h-screen">
       <div className="bg-[rgba(26,72,98,1)] h-[100px] sticky top-0 left-0 z-50 flex justify-between px-[20px] py-[20px]">
         <h2 className="text-white font-semibold text-[30px]"></h2> 
-        BURADA OLACAQ!
         <p className="text-white cursor-pointer" onClick={handleClick}>
           Hesabınız var? Daxil olun
         </p>

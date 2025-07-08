@@ -329,68 +329,89 @@ export default function Edit() {
       setPassword(data.password || "");
       setGender(data.gender || "");
 
-      if (typeof data.profession_area === "string") {
-        const category = fetchedCategories.find(
-          (c) => c.display_name === data.profession_area
-        );
-        if (category) {
-          setProfessionArea(category.id);
+      if (data.profession_area) {
+        if (typeof data.profession_area === "string") {
+          const category = fetchedCategories.find(
+            (c) => c.display_name === data.profession_area
+          );
+          if (category) {
+            setProfessionArea(category.id);
+            const filtered = fetchedAllServices.filter(
+              (service) => service.category.id === category.id
+            );
+            setFilteredServices(filtered);
+          }
+        } else if (data.profession_area?.id) {
+          setProfessionArea(data.profession_area.id);
           const filtered = fetchedAllServices.filter(
-            (service) => service.category.id === category.id
+            (service) => service.category.id === data.profession_area.id
           );
           setFilteredServices(filtered);
         }
-      } else if (data.profession_area?.id) {
-        setProfessionArea(data.profession_area.id);
-        const filtered = fetchedAllServices.filter(
-          (service) => service.category.id === data.profession_area.id
-        );
-        setFilteredServices(filtered);
       }
 
       if (data.profession_speciality) {
         let foundServiceId = "";
-        let isOtherService = false;
+        let foundServiceCategory = null;
 
         if (
           typeof data.profession_speciality === "string" &&
-          data.profession_speciality.startsWith("Digər (")
+          data.profession_speciality.includes("Digər")
         ) {
           const otherService = fetchedAllServices.find(
             (s) =>
               s.display_name === "Digər" &&
-              s.category.display_name === data.profession_area
+              s.category.id ===
+                (typeof data.profession_area === "string"
+                  ? fetchedCategories.find(
+                      (c) => c.display_name === data.profession_area
+                    )?.id
+                  : data.profession_area?.id)
           );
 
           if (otherService) {
             foundServiceId = otherService.id;
             setOtherServiceId(otherService.id);
-            isOtherService = true;
-
             setOtherSpecializationInput(
               data.custom_profession ||
-                data.profession_speciality.match(/Digər \((.*?)\)/)[1] ||
+                data.profession_speciality.match(/Digər \((.*?)\)/)?.[1] ||
                 ""
             );
           }
-        }
-
-        else {
-          const specialityDisplayName =
+        } else {
+          let specialityDisplayName =
             typeof data.profession_speciality === "string"
-              ? data.profession_speciality
-              : data.profession_speciality.display_name;
+              ? data.profession_speciality.trim()
+              : data.profession_speciality.display_name.trim();
+
+          const match = specialityDisplayName.match(/^(.*?)\s*\((.*?)\)$/);
+          if (match && match[1]) {
+            specialityDisplayName = match[1].trim();
+          }
 
           const service = fetchedAllServices.find(
-            (s) => s.display_name === specialityDisplayName
+            (s) => s.display_name.trim() === specialityDisplayName
           );
 
           if (service) {
             foundServiceId = service.id;
+            foundServiceCategory = service.category.id;
           }
         }
 
-        setProfessionSpecialization(foundServiceId);
+        if (
+          foundServiceId &&
+          (foundServiceCategory === professionArea ||
+            foundServiceId === otherServiceId)
+        ) {
+          setProfessionSpecialization(foundServiceId);
+          if (foundServiceId !== otherServiceId) {
+            setOtherSpecializationInput("");
+          }
+        } else {
+          setProfessionSpecialization("");
+          setOtherSpecializationInput("");
+        }
       } else {
         setProfessionSpecialization("");
         setOtherSpecializationInput("");
@@ -564,12 +585,9 @@ export default function Edit() {
       formData.append("profession_speciality", otherServiceId);
       formData.append("custom_profession", otherSpecializationInput);
     } else {
-      if (selectedService) {
-        formData.append("profession_speciality", professionSpecialization);
-        formData.append("custom_profession", "");
-      }
+      formData.append("profession_speciality", professionSpecialization);
+      formData.append("custom_profession", "");
     }
-
     console.log(
       "professionSpecialization type:",
       typeof professionSpecialization
@@ -1637,7 +1655,6 @@ export default function Edit() {
     setOpenPopup(false);
     document.body.style.overflowY = "auto";
   };
-  
 
   useEffect(() => {
     console.log("Filtered services:", filteredServices);

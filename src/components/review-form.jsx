@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ImageIcon, Star } from "lucide-react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 
 export default function ReviewForm() {
   const { masterId } = useParams();
@@ -138,14 +139,14 @@ export default function ReviewForm() {
     }
 
     try {
-      const response = await fetch(
-        `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/create`,
-        {
-          method: "POST",
-          headers: headers,
-          body: formData,
-        }
-      );
+      const response = await fetch({
+        method: "POST",
+        url: `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/create`,
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        data: formData,
+      });
 
       if (response.ok) {
         setSubmitStatus({
