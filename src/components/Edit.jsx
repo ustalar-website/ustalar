@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { az } from "date-fns/locale";
@@ -329,92 +329,175 @@ export default function Edit() {
       setPassword(data.password || "");
       setGender(data.gender || "");
 
+      let currentProfessionAreaId = null;
       if (data.profession_area) {
         if (typeof data.profession_area === "string") {
           const category = fetchedCategories.find(
             (c) => c.display_name === data.profession_area
           );
           if (category) {
-            setProfessionArea(category.id);
-            const filtered = fetchedAllServices.filter(
-              (service) => service.category.id === category.id
-            );
-            setFilteredServices(filtered);
+            currentProfessionAreaId = category.id;
           }
         } else if (data.profession_area?.id) {
-          setProfessionArea(data.profession_area.id);
-          const filtered = fetchedAllServices.filter(
-            (service) => service.category.id === data.profession_area.id
-          );
-          setFilteredServices(filtered);
+          currentProfessionAreaId = data.profession_area.id;
         }
-      }
+        setProfessionArea(currentProfessionAreaId);
+        console.log(
+          "DEBUG: Fetched professionArea ID:",
+          currentProfessionAreaId
+        );
 
-      if (data.profession_speciality) {
-        let foundServiceId = "";
-        let foundServiceCategory = null;
+        const servicesForCurrentArea = fetchedAllServices.filter(
+          (service) => service.category.id === currentProfessionAreaId
+        );
+        console.log(
+          "DEBUG: Services for current area (filtered):",
+          servicesForCurrentArea
+        );
 
-        if (
-          typeof data.profession_speciality === "string" &&
-          data.profession_speciality.includes("Digər")
-        ) {
-          const otherService = fetchedAllServices.find(
-            (s) =>
-              s.display_name === "Digər" &&
-              s.category.id ===
-                (typeof data.profession_area === "string"
-                  ? fetchedCategories.find(
-                      (c) => c.display_name === data.profession_area
-                    )?.id
-                  : data.profession_area?.id)
-          );
-
-          if (otherService) {
-            foundServiceId = otherService.id;
-            setOtherServiceId(otherService.id);
-            setOtherSpecializationInput(
-              data.custom_profession ||
-                data.profession_speciality.match(/Digər \((.*?)\)/)?.[1] ||
-                ""
+        const otherServiceInCurrentArea = servicesForCurrentArea.find(
+          (item) => {
+            const lowerName = item.display_name.toLowerCase();
+            return (
+              lowerName.includes("digər") ||
+              lowerName.includes("diger") ||
+              lowerName.includes("other")
             );
           }
-        } else {
-          let specialityDisplayName =
-            typeof data.profession_speciality === "string"
-              ? data.profession_speciality.trim()
-              : data.profession_speciality.display_name.trim();
+        );
 
-          const match = specialityDisplayName.match(/^(.*?)\s*\((.*?)\)$/);
-          if (match && match[1]) {
-            specialityDisplayName = match[1].trim();
+        const localOtherServiceId = otherServiceInCurrentArea
+          ? otherServiceInCurrentArea.id
+          : null;
+        setOtherServiceId(localOtherServiceId);
+
+        const finalFilteredServicesForFetch = servicesForCurrentArea.filter(
+          (item) => {
+            const lowerName = item.display_name.toLowerCase();
+            return !(
+              lowerName.includes("digər") ||
+              lowerName.includes("diger") ||
+              lowerName.includes("other")
+            );
+          }
+        );
+        setFilteredServices(finalFilteredServicesForFetch);
+        console.log(
+          "DEBUG: filteredServices after fetch (excluding ALL 'Digər'-like):",
+          finalFilteredServicesForFetch
+        );
+
+        if (data.profession_speciality) {
+          let foundServiceId = "";
+          let specialityIdFromData = null;
+          let specialityDisplayNameFromData = "";
+
+          if (
+            typeof data.profession_speciality === "object" &&
+            data.profession_speciality !== null
+          ) {
+            specialityIdFromData = data.profession_speciality.id;
+            specialityDisplayNameFromData =
+              data.profession_speciality.display_name?.trim() || "";
+          } else if (typeof data.profession_speciality === "string") {
+            specialityDisplayNameFromData = data.profession_speciality.trim();
           }
 
-          const service = fetchedAllServices.find(
-            (s) => s.display_name.trim() === specialityDisplayName
+          console.log(
+            "DEBUG: Raw profession_speciality from data:",
+            data.profession_speciality
+          );
+          console.log(
+            "DEBUG: Extracted specialityIdFromData:",
+            specialityIdFromData
+          );
+          console.log(
+            "DEBUG: Extracted specialityDisplayNameFromData:",
+            specialityDisplayNameFromData
           );
 
-          if (service) {
-            foundServiceId = service.id;
-            foundServiceCategory = service.category.id;
+          if (specialityIdFromData) {
+            const serviceById = servicesForCurrentArea.find(
+              (s) => s.id === specialityIdFromData
+            );
+            if (serviceById) {
+              foundServiceId = serviceById.id;
+              console.log("DEBUG: Found service by ID:", foundServiceId);
+            }
           }
-        }
 
-        if (
-          foundServiceId &&
-          (foundServiceCategory === professionArea ||
-            foundServiceId === otherServiceId)
-        ) {
-          setProfessionSpecialization(foundServiceId);
-          if (foundServiceId !== otherServiceId) {
-            setOtherSpecializationInput("");
+          if (!foundServiceId && specialityDisplayNameFromData) {
+            if (specialityDisplayNameFromData.includes("Digər")) {
+              const match =
+                specialityDisplayNameFromData.match(/Digər $$(.*?)$$/);
+              if (match && match[1]) {
+                setOtherSpecializationInput(match[1].trim());
+              } else {
+                setOtherSpecializationInput(data.custom_profession || "");
+              }
+              foundServiceId = localOtherServiceId;
+              console.log(
+                "DEBUG: Speciality is 'Digər', foundServiceId:",
+                foundServiceId,
+                "Custom input:",
+                otherSpecializationInput
+              );
+            } else {
+              const cleanedSpecialityDisplayName = specialityDisplayNameFromData
+                .replace(/\s*$$.*$$\s*$/, "")
+                .trim();
+              console.log(
+                "DEBUG: Cleaned specialityDisplayName for matching:",
+                cleanedSpecialityDisplayName
+              );
+
+              const serviceByName = servicesForCurrentArea.find(
+                (s) => s.display_name.trim() === cleanedSpecialityDisplayName
+              );
+              if (serviceByName) {
+                foundServiceId = serviceByName.id;
+                console.log(
+                  "DEBUG: Found service by Cleaned Name (exact match):",
+                  foundServiceId
+                );
+              } else {
+                const lenientServiceMatch = servicesForCurrentArea.find(
+                  (s) =>
+                    cleanedSpecialityDisplayName.includes(
+                      s.display_name.trim()
+                    ) ||
+                    s.display_name.trim().includes(cleanedSpecialityDisplayName)
+                );
+                if (lenientServiceMatch) {
+                  foundServiceId = lenientServiceMatch.id;
+                  console.log(
+                    "DEBUG: Found service by Lenient Name Match (includes):",
+                    foundServiceId
+                  );
+                }
+              }
+            }
           }
+
+          setProfessionSpecialization(foundServiceId);
+          console.log(
+            "DEBUG: Final professionSpecialization set to:",
+            foundServiceId
+          );
         } else {
           setProfessionSpecialization("");
           setOtherSpecializationInput("");
+          console.log("DEBUG: No profession_speciality data, clearing states.");
         }
       } else {
+        setProfessionArea("");
         setProfessionSpecialization("");
         setOtherSpecializationInput("");
+        setFilteredServices([]);
+        setOtherServiceId(null);
+        console.log(
+          "DEBUG: No profession_area data, clearing all related states."
+        );
       }
 
       setWorkExperience(data.experience_years || "");
@@ -492,7 +575,10 @@ export default function Edit() {
   };
 
   useEffect(() => {
-    console.log(professionSpecialization);
+    console.log(
+      "Current professionSpecialization state:",
+      professionSpecialization
+    );
   }, [professionSpecialization]);
 
   const loginUser = async () => {
@@ -1077,6 +1163,10 @@ export default function Edit() {
     setProfessionSpecializationError("");
   };
 
+  const handleOtherSpecializationInputBlur = () => {
+    validateProfessionSpecialization(professionSpecialization);
+  };
+
   const handleWorkExperienceChange = (e) => {
     setWorkExperience(e.target.value);
     setWorkExperienceError("");
@@ -1162,6 +1252,7 @@ export default function Edit() {
     try {
       const res = await fetch("https://api.peshekar.online/api/v1/services/");
       const data = await res.json();
+      console.log("DEBUG: All services fetched from API:", data);
 
       const uniqueCategories = Array.from(
         new Map(data.map((item) => [item.category.id, item.category])).values()
@@ -1169,13 +1260,8 @@ export default function Edit() {
 
       setCategories(uniqueCategories);
       setAllServices(data);
-
-      const otherService = data.find(
-        (service) => service.display_name === "Diger"
-      );
-      if (otherService) {
-        setOtherServiceId(otherService.id);
-      }
+      console.log("DEBUG: All categories set:", uniqueCategories);
+      console.log("DEBUG: All services set:", data);
 
       return { categories: uniqueCategories, services: data };
     } catch (error) {
@@ -1189,21 +1275,46 @@ export default function Edit() {
     setProfessionArea(selectedCategoryId);
     setProfessionSpecialization("");
     setOtherSpecializationInput("");
+    console.log("DEBUG: Profession Area changed to ID:", selectedCategoryId);
 
-    const currentSpecialization = allServices.find(
-      (s) => s.id === professionSpecialization
-    );
-    if (
-      !currentSpecialization ||
-      currentSpecialization.category.id !== selectedCategoryId
-    ) {
-      setProfessionSpecialization("");
-    }
-
-    const filtered = allServices.filter(
+    const servicesForNewArea = allServices.filter(
       (service) => service.category.id === selectedCategoryId
     );
-    setFilteredServices(filtered);
+    console.log("DEBUG: Services for new area (filtered):", servicesForNewArea);
+
+    const otherServiceInNewArea = servicesForNewArea.find((item) => {
+      const lowerName = item.display_name.toLowerCase();
+      return (
+        lowerName.includes("digər") ||
+        lowerName.includes("diger") ||
+        lowerName.includes("other")
+      );
+    });
+
+    const finalFilteredServices = servicesForNewArea.filter((item) => {
+      const lowerName = item.display_name.toLowerCase();
+      return !(
+        lowerName.includes("digər") ||
+        lowerName.includes("diger") ||
+        lowerName.includes("other")
+      );
+    });
+
+    setFilteredServices(finalFilteredServices);
+    console.log(
+      "DEBUG: filteredServices after area change (excluding ALL 'Digər'-like):",
+      finalFilteredServices
+    );
+
+    setOtherServiceId(otherServiceInNewArea ? otherServiceInNewArea.id : null);
+    console.log(
+      "DEBUG: otherServiceId after area change:",
+      otherServiceInNewArea ? otherServiceInNewArea.id : null
+    );
+    console.log(
+      "DEBUG: filteredServices after area change (excluding explicit 'Digər'):",
+      servicesForNewArea
+    );
   };
 
   async function handleLanguage() {
@@ -1227,6 +1338,10 @@ export default function Edit() {
           await handleCategories();
         const fetchedLocations = await handleLocation();
 
+        console.log(
+          "DEBUG: Calling fetchUserData with fetchedAllServices:",
+          fetchedAllServices
+        );
         await fetchUserData(
           fetchedCategories,
           fetchedAllServices,
@@ -1240,6 +1355,8 @@ export default function Edit() {
 
     fetchAllData();
   }, []);
+
+  console.log("Current openPopup state:", openPopup);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -1484,11 +1601,6 @@ export default function Edit() {
         const offsetX = canvasSize / 2 - scaledWidth / 2 - dragPosition.x;
         const offsetY = canvasSize / 2 - scaledHeight / 2 - dragPosition.y;
 
-        ctx.beginPath();
-        ctx.arc(canvasSize / 2, canvasSize / 2, canvasSize / 2, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.clip();
-
         ctx.drawImage(image, offsetX, offsetY, scaledWidth, scaledHeight);
 
         const finalImage = canvas.toDataURL("image/png");
@@ -1660,42 +1772,6 @@ export default function Edit() {
     console.log("Filtered services:", filteredServices);
     console.log("Other service ID:", otherServiceId);
   }, [filteredServices, otherServiceId]);
-
-  const getServices = useCallback(() => {
-    if (!professionArea) return;
-
-    const filtered = allServices.filter(
-      (service) => service.category.id === professionArea
-    );
-
-    const otherService = filtered.find((item) => {
-      const lowerName = item.display_name.toLowerCase();
-      return (
-        lowerName.includes("digər") ||
-        lowerName.includes("diger") ||
-        lowerName.includes("other") ||
-        lowerName === "digər" ||
-        lowerName === "diger" ||
-        lowerName === "other"
-      );
-    });
-
-    if (otherService) {
-      console.log("Found 'Digər' service with ID:", otherService.id);
-      setOtherServiceId(otherService.id);
-      setFilteredServices(
-        filtered.filter((item) => item.id !== otherService.id)
-      );
-    } else {
-      console.log("No 'Digər' service found in this category");
-      setOtherServiceId(null);
-      setFilteredServices(filtered);
-    }
-  }, [professionArea, allServices]);
-
-  useEffect(() => {
-    getServices();
-  }, [professionArea, getServices]);
 
   console.log("Current openPopup state:", openPopup);
 
@@ -2271,7 +2347,7 @@ export default function Edit() {
                     <div className="mt-4">
                       <div className="flex gap-[4px]">
                         <img
-                          src={placesvg}
+                          src={placesvg || "/placeholder.svg"}
                           alt="place-icon"
                           className="w-[1.2rem] h-[1.2rem]"
                         />
@@ -2283,9 +2359,8 @@ export default function Edit() {
                       <input
                         type="text"
                         value={otherSpecializationInput}
-                        onChange={(e) =>
-                          setOtherSpecializationInput(e.target.value)
-                        }
+                        onChange={handleOtherSpecializationInputChange}
+                        onBlur={handleOtherSpecializationInputBlur}
                         placeholder="Məsələn: Backend developer"
                         className={`w-full h-[3rem] border ${
                           professionSpecializationError
@@ -2835,7 +2910,7 @@ export default function Edit() {
                       />
                       <div
                         ref={containerRef}
-                        className="w-[220px] h-[220px] rounded-full overflow-hidden border-2 border-white shadow-lg z-10 absolute"
+                        className="w-[220px] h-[220px] rounded-lg overflow-hidden border-2 border-white shadow-lg z-10 absolute"
                       >
                         <img
                           src={tempImagePreview || "/placeholder.svg"}
