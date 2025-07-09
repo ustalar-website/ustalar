@@ -1,10 +1,11 @@
 import React, { useRef, useState } from "react";
 import { ImageIcon, Star } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function ReviewForm() {
   const { masterId } = useParams();
+  const navigate = useNavigate();
   const inputref = useRef(null);
   const handleclick = () => inputref.current?.click();
 
@@ -20,7 +21,6 @@ export default function ReviewForm() {
     "#Çevik": "agile",
     "#Səbirli": "patient",
   };
-
   const TAGS = Object.keys(TAG_MAPPING);
 
   const [name, setName] = useState("");
@@ -31,18 +31,18 @@ export default function ReviewForm() {
   const [ratingError, setRatingError] = useState("");
   const [textError, setTextError] = useState("");
   const [tagError, setTagError] = useState("");
-
   const [imageError, setImageError] = useState("");
   const [imageUploadValidationError, setImageUploadValidationError] =
     useState(false);
-
   const [submitStatus, setSubmitStatus] = useState({
     loading: false,
     success: false,
     message: "",
   });
-
   const [selectedTags, setSelectedTags] = useState([]);
+  const [images, setImages] = useState([]);
+  const [inputKey, setInputKey] = useState(Date.now());
+
   const tagselector = (tag) => {
     if (selectedTags.includes(tag)) {
       setSelectedTags(selectedTags.filter((t) => t !== tag));
@@ -59,20 +59,18 @@ export default function ReviewForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     console.log("ReviewForm: masterId prop:", masterId);
 
     if (!masterId) {
       setSubmitStatus({
         loading: false,
         success: false,
-        message: "Master ID tapılmadı. Rəy göndərilə bilmədi.",
+        message: "Usta tapılmadı. Rəy göndərilə bilmədi.",
       });
       return;
     }
 
     let isValid = true;
-
     if (name.trim() === "") {
       setNameError("Zəhmət olmasa adınızı daxil edin");
       isValid = false;
@@ -103,6 +101,7 @@ export default function ReviewForm() {
     } else {
       setTagError("");
     }
+
     setImageError("");
     setImageUploadValidationError(false);
 
@@ -119,70 +118,63 @@ export default function ReviewForm() {
 
     const formData = new FormData();
     formData.append("username", name);
-    formData.append("rating", rating);
+    formData.append("rating", rating.toString());
     formData.append("comment", text);
+
+    const authToken = localStorage.getItem("authToken");
+    if (!authToken) {
+      navigate("/login");
+      return;
+    }
 
     Object.keys(TAG_MAPPING).forEach((frontendTag) => {
       const apiField = TAG_MAPPING[frontendTag];
-      formData.append(apiField, selectedTags.includes(frontendTag));
+      formData.append(apiField, selectedTags.includes(frontendTag).toString());
     });
 
     images.forEach((image) => {
       formData.append("review_images", image, image.name);
     });
 
-    const authToken = localStorage.getItem("authToken");
-    const headers = {};
-
+    const headers = {
+      "Content-Type": "multipart/form-data",
+    };
     if (authToken) {
       headers["Authorization"] = `Bearer ${authToken}`;
     }
 
     try {
-      const response = await fetch({
-        method: "POST",
-        url: `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/create`,
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        data: formData,
-      });
+      const response = await axios.post(
+        `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/create/`,
+        formData,
+        { headers }
+      );
 
-      if (response.ok) {
-        setSubmitStatus({
-          loading: false,
-          success: true,
-          message: "Rəyiniz uğurla göndərildi!",
-        });
-        setRating(0);
-        setText("");
-        setSelectedTags([]);
-        setImages([]);
-        setInputKey(Date.now());
-        setName("");
-        setImageUploadValidationError(false);
-      } else {
-        const errorData = await response.json();
-        console.error("API Error:", errorData);
-        setSubmitStatus({
-          loading: false,
-          success: false,
-          message: `Rəy göndərilərkən xəta baş verdi: ${
-            errorData.detail || JSON.stringify(errorData)
-          }`,
-        });
-      }
+      setSubmitStatus({
+        loading: false,
+        success: true,
+        message: "Rəyiniz uğurla göndərildi!",
+      });
+      navigate(`/master/${masterId}`);
+      setRating(0);
+      setText("");
+      setSelectedTags([]);
+      setImages([]);
+      setInputKey(Date.now());
+      setName("");
+      setImageUploadValidationError(false);
     } catch (err) {
       console.error("Network Error:", err);
+      const errorData = err.response?.data;
       setSubmitStatus({
         loading: false,
         success: false,
-        message: `Şəbəkə xətası: ${err.message}`,
+        message: `Rəy göndərilərkən xəta baş verdi: ${
+          errorData?.detail || err.message
+        }`,
       });
     }
   };
-  const [images, setImages] = useState([]);
-  const [inputKey, setInputKey] = useState(Date.now());
 
   const handleImageChange = (e) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -229,7 +221,6 @@ export default function ReviewForm() {
       className="mx-auto p-6 max-w-[1400px] bg-white rounded-lg"
       onSubmit={handleSubmit}
     >
-      {" "}
       <h2 className="font-bold text-xl mb-4">Xidmət haqqında rəy yazın</h2>
       {submitStatus.message && (
         <div
@@ -285,7 +276,6 @@ export default function ReviewForm() {
             {ratingError}
           </p>
         )}
-
         <textarea
           placeholder='"Yaşadığınız təcrübəni bizimlə bölüşün" '
           className="w-full border border-gray-300 h-[147px] rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -303,8 +293,7 @@ export default function ReviewForm() {
           Şəkil əlavə edin (istəyə bağlıdır)
         </label>
         <div
-          className={`w-48 h-48 border-dashed border-[3px] rounded-lg flex flex-col items-center justify-center mb-[50px] cursor-pointer text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors
-          ${
+          className={`w-48 h-48 border-dashed border-[3px] rounded-lg flex flex-col items-center justify-center mb-[50px] cursor-pointer text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors${
             imageUploadValidationError
               ? "border-red-500 text-red-500"
               : "border-gray-300"
@@ -357,12 +346,12 @@ export default function ReviewForm() {
             <button
               type="button"
               onClick={() => tagselector(tag)}
-              className={`border-2 px-[10px] py-[7px] rounded text-[16px] transition-colors duration-200
-              ${tagError ? "border-red-500" : ""}
-              ${
+              className={`border-2 px-[10px] py-[7px] rounded text-[16px] transition-colors duration-200 ${
+                tagError ? "border-red-500" : ""
+              } ${
                 selectedTags.includes(tag)
-                  ? "border-[#1a4862] bg-[#cde4f2] text-[#1a4862]"
-                  : "border-gray-300 bg-[#cde4f2] text-[#1a4862] hover:bg-blue-100"
+                  ? "border-[#1a4862] text-[#1a4862] bg-[#cde4f2]"
+                  : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
               }`}
               key={tag}
             >
@@ -380,7 +369,6 @@ export default function ReviewForm() {
         </p>
       )}
       <div className="flex justify-end">
-        {" "}
         <button
           type="submit"
           className="bg-[#1A4862] hover:bg-[#1A4862]/90 text-white px-4 py-2 rounded-md text-lg font-semibold"
