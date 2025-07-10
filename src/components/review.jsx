@@ -1,7 +1,9 @@
-import { Star } from "lucide-react";
+"use client";
+
+import { Star, CalendarDays } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import Sidebar from "../sidebar";
-import { Link, useParams } from "react-router-dom";
 
 const getImageUrl = (path) => {
   if (!path) return "/placeholder.svg";
@@ -32,11 +34,38 @@ export default function ReviewDisplay() {
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [selectedSortOption, setSelectedSortOption] = useState("newest");
 
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [currentModalImage, setCurrentModalImage] = useState("");
+
   const sortOptions = [
     { label: "Ən yenilər", value: "newest", apiParam: "-created_at" },
     { label: "Ən yüksək reytinq", value: "highest", apiParam: "-rating" },
     { label: "Ən aşağı reytinq", value: "lowest", apiParam: "rating" },
   ];
+
+  function formatReviewDate(dateString) {
+    const date = new Date(dateString);
+    const months = [
+      "Yanvar",
+      "Fevral",
+      "Mart",
+      "Aprel",
+      "May",
+      "İyun",
+      "İyul",
+      "Avqust",
+      "Sentyabr",
+      "Oktyabr",
+      "Noyabr",
+      "Dekabr",
+    ];
+
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${day} ${month} ${year}`;
+  }
 
   const fetchReviews = useCallback(async () => {
     if (!masterId) {
@@ -59,6 +88,7 @@ export default function ReviewDisplay() {
       }`;
 
       const response = await fetch(url);
+
       if (!response.ok) {
         if (response.status === 404) {
           console.warn(
@@ -71,38 +101,45 @@ export default function ReviewDisplay() {
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+
       const data = await response.json();
       console.log("Fetched reviews data:", data);
-      const formattedReviews = (data.results || []).map((apiReview) => ({
-        id: apiReview.id,
-        reviewerName: apiReview.username || "Anonim hesab",
 
-        isAnonymous:
-          !apiReview.user ||
-          (!apiReview.user.username &&
-            !apiReview.user.first_name &&
-            !apiReview.user.last_name),
-        rating: apiReview.rating,
+      const formattedReviews = (data.results || []).map((apiReview) => {
+        const reviewerName = apiReview.username || "Anonim hesab";
+        const nameParts = reviewerName.split(" ").filter(Boolean);
+        let initials = "";
+        if (nameParts.length > 1) {
+          initials = `${nameParts[0].charAt(0)}${nameParts[
+            nameParts.length - 1
+          ].charAt(0)}`;
+        } else if (nameParts.length === 1 && nameParts[0]) {
+          initials = nameParts[0].charAt(0);
+        }
 
-        date: new Date(apiReview.created_at).toLocaleDateString("az-AZ", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }),
+        const profileImageUrl = apiReview.profile_image
+          ? getImageUrl(apiReview.profile_image)
+          : undefined;
 
-        text: apiReview.comment,
-        
-        tags: Object.entries(TAG_DISPLAY_MAPPING)
-          .filter(([key]) => apiReview[key] === true)
-          .map(([, display]) => display),
+        return {
+          id: apiReview.id,
+          reviewerName: reviewerName,
+          isAnonymous: !apiReview.username,
+          rating: apiReview.rating,
+          date: formatReviewDate(apiReview.created_at),
 
-        imageUrl:
-          apiReview.images && apiReview.images.length > 0
-            ? apiReview.images[0].image || apiReview.images[0].image_url
-            : undefined,
-
-        profileImageUrl: getImageUrl(apiReview.profile_image),
-      }));
+          text: apiReview.comment,
+          tags: Object.entries(TAG_DISPLAY_MAPPING)
+            .filter(([key]) => apiReview[key] === true)
+            .map(([, display]) => display),
+          imageUrl:
+            apiReview.images && apiReview.images.length > 0
+              ? apiReview.images[0].image || apiReview.images[0].image_url
+              : undefined,
+          profileImageUrl: profileImageUrl,
+          profileInitials: initials.toUpperCase(),
+        };
+      });
       setReviews(formattedReviews);
     } catch (err) {
       console.error("Error fetching reviews:", err);
@@ -124,7 +161,6 @@ export default function ReviewDisplay() {
         distribution[review.rating]++;
       }
     });
-
     const totalReviews = reviews.length;
     const percentages = {};
     for (let i = 1; i <= 5; i++) {
@@ -149,8 +185,17 @@ export default function ReviewDisplay() {
     calculateOverallRating(reviews);
 
   const [showMoreReview, setShowMoreReview] = useState(false);
-
   const existingTags = [...new Set(reviews.flatMap((r) => r.tags))];
+
+  const openImageModal = (imageUrl) => {
+    setCurrentModalImage(imageUrl);
+    setShowImageModal(true);
+  };
+
+  const closeImageModal = () => {
+    setShowImageModal(false);
+    setCurrentModalImage("");
+  };
 
   return (
     <div className="flex h-screen">
@@ -163,7 +208,6 @@ export default function ReviewDisplay() {
           <p className="text-gray-600 mb-6">
             Aldığınız reytinqləri və şərhləri izləyin
           </p>
-
           <div className="flex flex-col md:flex-row w-full gap-4 mb-10">
             <div className="w-full md:w-[70%] flex rounded-xl overflow-hidden bg-gray-50 shadow-sm">
               <div className="w-full md:w-[35%] flex flex-col items-center justify-center py-4 border-r border-gray-200">
@@ -185,7 +229,6 @@ export default function ReviewDisplay() {
                 </div>
                 <p className="text-gray-600">Toplam {overallTotal} rəy</p>
               </div>
-
               <div className="w-full md:w-[65%] p-4">
                 <h3 className="font-semibold text-[20px] mb-4">
                   Reytinq bölgüsü
@@ -211,7 +254,6 @@ export default function ReviewDisplay() {
                   ))}
               </div>
             </div>
-
             <div className="w-full md:w-[30%] p-4 bg-gray-50 rounded-lg shadow-sm">
               <h3 className="font-semibold text-[20px] mb-4">
                 Haqqımda etiketlər
@@ -232,13 +274,11 @@ export default function ReviewDisplay() {
               )}
             </div>
           </div>
-
           <div className="mb-6">
             <div className="mb-4">
               <h3 className="font-bold text-cyan-900 text-xl mb-2">
                 Müştəri Rəyləri
               </h3>
-
               <div className="relative inline-block text-left">
                 <button
                   onClick={() => setIsSelectOpen(!isSelectOpen)}
@@ -265,7 +305,6 @@ export default function ReviewDisplay() {
                     />
                   </svg>
                 </button>
-
                 {isSelectOpen && (
                   <div className="absolute left-0 mt-2 w-[200px] bg-white border border-gray-200 rounded-xl shadow-lg z-10">
                     {sortOptions.map((option) => (
@@ -288,7 +327,6 @@ export default function ReviewDisplay() {
                 )}
               </div>
             </div>
-
             <div className="space-y-6">
               {loading ? (
                 <p className="text-center text-gray-600">Rəylər yüklənir...</p>
@@ -298,7 +336,7 @@ export default function ReviewDisplay() {
                 </p>
               ) : reviews.length === 0 ? (
                 <p className="text-center text-gray-600">
-                  Hələ heç bir rəy yoxdur.
+                  Hələ heç bir rəy yoxdur. İlk rəyi siz yazın!
                 </p>
               ) : (
                 reviews.map((review, index) => {
@@ -308,21 +346,23 @@ export default function ReviewDisplay() {
                   return (
                     <div
                       key={review.id}
-                      className="p-4 shadow-sm rounded-lg bg-white"
+                      className="p-4 shadow-md rounded-xl bg-white border border-gray-100"
                     >
                       <div className="p-0">
                         <div className="flex items-center mb-3">
                           <div className="w-10 h-10 mr-3 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                            <img
-                              src={
-                                getImageUrl(review.profileImageUrl) ||
-                                "/placeholder.svg"
-                              }
-                              alt={review.reviewerName}
-                              className="rounded-full w-full h-full object-cover"
-                            />
-                            {!review.profileImageUrl && (
-                              <span>{review.reviewerName.charAt(0)}</span>
+                            {review.profileImageUrl ? (
+                              <img
+                                src={
+                                  review.profileImageUrl || "/placeholder.svg"
+                                }
+                                alt={review.reviewerName}
+                                className="rounded-full w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-lg">
+                                {review.profileInitials}
+                              </span>
                             )}
                           </div>
                           <div>
@@ -342,7 +382,8 @@ export default function ReviewDisplay() {
                               ))}
                             </div>
                           </div>
-                          <div className="ml-auto text-sm text-gray-500">
+                          <div className="ml-auto text-sm text-gray-500 flex items-center gap-1">
+                            <CalendarDays className="w-4 h-4" />
                             {review.date}
                           </div>
                         </div>
@@ -355,14 +396,17 @@ export default function ReviewDisplay() {
                             alt="Review image"
                             width={200}
                             height={150}
-                            className="rounded-lg object-cover mb-3"
+                            className="rounded-md object-cover mb-3 cursor-pointer"
+                            onClick={() =>
+                              openImageModal(getImageUrl(review.imageUrl))
+                            }
                           />
                         )}
                         <div className="flex flex-wrap gap-2">
                           {review.tags.map((tag) => (
                             <span
                               key={tag}
-                              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#cde4f2] text-[#1a4862]"
+                              className="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium bg-[#cde4f2] text-[#1a4862]"
                             >
                               {tag}
                             </span>
@@ -375,7 +419,6 @@ export default function ReviewDisplay() {
               )}
             </div>
           </div>
-
           {overallTotal > 1 && (
             <div className="flex justify-center w-full mt-8">
               <button
@@ -396,6 +439,26 @@ export default function ReviewDisplay() {
         </Link> */}
         </div>
       </div>
+      {showImageModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="relative max-w-4xl w-full mx-4">
+            <button
+              onClick={closeImageModal}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 text-2xl font-bold z-10"
+            >
+              &times;
+            </button>
+
+            <div className="bg-white p-2 rounded-lg shadow-xl overflow-hidden">
+              <img
+                src={currentModalImage || "/placeholder.svg"}
+                alt="Enlarged review image"
+                className="w-full max-h-[80vh] object-contain rounded-md"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
