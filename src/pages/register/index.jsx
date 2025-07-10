@@ -280,7 +280,7 @@ function Register() {
     } else if (name === "mobile_number") {
       return /^(50|51|55|70|77|99|10|60)\d{7}$/;
     } else if (name === "password") {
-      return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\-_+])[A-Za-z\d!@#\-_+]{8,15}$/;
+      return /^(?=.*[A-ZÇĞİÖŞÜƏ])(?=.*\d)(?=.*[!@#\-_+])[A-Za-zÇçĞğİıÖöŞşÜüƏə\d!@#\-_+]{8,15}$/;
     } else if (name === "custom_profession") {
       return /^[A-Za-zÇçƏəĞğİiÖöŞşÜü ]{2,40}$/;
     }
@@ -700,8 +700,8 @@ function Register() {
   ];
 
   const check_password_strength = (value) => {
-    const uppercaseRegexp = /[A-Z]/;
-    const lowercaseRegexp = /[a-z]/;
+    const uppercaseRegexp = /[A-ZÇĞİÖŞÜƏ]/;
+    const lowercaseRegexp = /[a-zçğıöşüə]/;
     const symbolRegexp = /[!@#$%^&*)(+=._\-{}[\]:;"'<>,?/\\|~`]/;
     const numberRegexp = /\d/;
     setPasswordStrength({
