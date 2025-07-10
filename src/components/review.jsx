@@ -336,7 +336,7 @@ export default function ReviewDisplay() {
                 </p>
               ) : reviews.length === 0 ? (
                 <p className="text-center text-gray-600">
-                  Hələ heç bir rəy yoxdur. İlk rəyi siz yazın!
+                  Hələ heç bir rəy yoxdur.
                 </p>
               ) : (
                 reviews.map((review, index) => {
