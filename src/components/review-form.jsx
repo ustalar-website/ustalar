@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { ImageIcon, Star } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import ProfilNavbar from "../profil-navbar";
 import axios from "axios";
 
 export default function ReviewForm() {
@@ -122,14 +123,12 @@ export default function ReviewForm() {
     formData.append("comment", text);
 
     const authToken = localStorage.getItem("authToken");
-    if (!authToken) {
-      navigate("/login");
-      return;
-    }
 
-    Object.keys(TAG_MAPPING).forEach((frontendTag) => {
+    selectedTags.forEach((frontendTag) => {
       const apiField = TAG_MAPPING[frontendTag];
-      formData.append(apiField, selectedTags.includes(frontendTag).toString());
+      if (apiField) {
+        formData.append(apiField, "true");
+      }
     });
 
     images.forEach((image) => {
@@ -139,6 +138,7 @@ export default function ReviewForm() {
     const headers = {
       "Content-Type": "multipart/form-data",
     };
+
     if (authToken) {
       headers["Authorization"] = `Bearer ${authToken}`;
     }
@@ -149,7 +149,6 @@ export default function ReviewForm() {
         formData,
         { headers }
       );
-
       setSubmitStatus({
         loading: false,
         success: true,
@@ -217,166 +216,171 @@ export default function ReviewForm() {
   };
 
   return (
-    <form
-      className="mx-auto p-6 max-w-[1400px] bg-white rounded-lg"
-      onSubmit={handleSubmit}
-    >
-      <h2 className="font-bold text-xl mb-4">Xidmət haqqında rəy yazın</h2>
-      {submitStatus.message && (
-        <div
-          className={`mb-4 p-3 rounded-md text-center ${
-            submitStatus.success
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-        >
-          {submitStatus.message}
-        </div>
-      )}
-      <div className="mb-4">
-        <label htmlFor="name" className="block font-semibold mb-3">
-          Adınızı və soyadınızı qeyd edin
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Adınızı qeyd edin"
-          className={`w-full border rounded p-[5px] mb-[30px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            nameError ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {nameError && (
-          <p className="text-red-500 text-sm mb-[30px] font-semibold">
-            {nameError}
-          </p>
-        )}
-      </div>
-      <div className="mb-4">
-        <label className="block mb-2 font-semibold">
-          Xidmətlə bağlı təəssüratınız necə idi?
-        </label>
-        <div className="flex gap-[3px] text-[25px] mb-[10px] cursor-pointer">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              className={`cursor-pointer ${
-                star <= rating
-                  ? "text-yellow-400 fill-yellow-400"
-                  : "text-yellow-400"
-              }`}
-              onClick={() => setRating(star === rating ? 0 : star)}
-            />
-          ))}
-        </div>
-        {ratingError && (
-          <p className="text-red-500 text-sm mb-[30px] font-semibold">
-            {ratingError}
-          </p>
-        )}
-        <textarea
-          placeholder='"Yaşadığınız təcrübəni bizimlə bölüşün" '
-          className="w-full border border-gray-300 h-[147px] rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onChange={(e) => setText(e.target.value)}
-          value={text}
-        ></textarea>
-        {textError && (
-          <p className="text-red-500 text-sm mb-[30px] font-semibold">
-            {textError}
-          </p>
-        )}
-      </div>
-      <div>
-        <label className="block mb-2 font-semibold mt-[40px]">
-          Şəkil əlavə edin (istəyə bağlıdır)
-        </label>
-        <div
-          className={`w-48 h-48 border-dashed border-[3px] rounded-lg flex flex-col items-center justify-center mb-[50px] cursor-pointer text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors${
-            imageUploadValidationError
-              ? "border-red-500 text-red-500"
-              : "border-gray-300"
-          }`}
-          onClick={handleclick}
-        >
-          <span className="mb-1">Şəkil əlavə edin</span>
-          <ImageIcon className="w-6 h-6" />
-          <input
-            type="file"
-            ref={inputref}
-            key={inputKey}
-            className="hidden"
-            accept="image/*"
-            multiple
-            onChange={handleImageChange}
-          />
-        </div>
-        {images.length > 0 && (
-          <div className="flex gap-4 flex-wrap mb-4">
-            {images.map((image, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={URL.createObjectURL(image) || "/placeholder.svg"}
-                  alt={`şəkil-${index}`}
-                  className="w-[100px] h-[100px] object-cover rounded border border-gray-300"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(index)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold"
-                  aria-label="Şəkli sil"
-                >
-                  X
-                </button>
-              </div>
-            ))}
+    <div>
+      <ProfilNavbar />
+      <form
+        className="mx-auto p-6 max-w-[1400px] bg-white rounded-lg"
+        onSubmit={handleSubmit}
+      >
+        <h2 className="font-bold text-xl mb-4">Xidmət haqqında rəy yazın</h2>
+        {submitStatus.message && (
+          <div
+            className={`mb-4 p-3 rounded-md text-center ${
+              submitStatus.success
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {submitStatus.message}
           </div>
         )}
-      </div>
-      {imageError && (
-        <p className="text-red-500 text-sm mt-2 font-semibold">{imageError}</p>
-      )}
-      <div className="mb-4 max-w-[750px]">
-        <p className="font-semibold mb-[20px]">
-          Xidməti xarakterizə edən etiketləri seçin (maks. 5 ədəd)
-        </p>
-        <div className="flex flex-wrap gap-[10px]">
-          {TAGS.map((tag) => (
-            <button
-              type="button"
-              onClick={() => tagselector(tag)}
-              className={`border-2 px-[10px] py-[7px] rounded text-[16px] transition-colors duration-200 ${
-                tagError ? "border-red-500" : ""
-              } ${
-                selectedTags.includes(tag)
-                  ? "border-[#1a4862] text-[#1a4862] bg-[#cde4f2]"
-                  : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
-              }`}
-              key={tag}
-            >
-              {tag}
-            </button>
-          ))}
+        <div className="mb-4">
+          <label htmlFor="name" className="block font-semibold mb-3">
+            Adınızı və soyadınızı qeyd edin
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Adınızı qeyd edin"
+            className={`w-full border rounded p-[5px] mb-[30px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              nameError ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {nameError && (
+            <p className="text-red-500 text-sm mb-[30px] font-semibold">
+              {nameError}
+            </p>
+          )}
         </div>
-        {error && (
-          <p className="text-red-500 text-sm mt-2 font-semibold">{error}</p>
+        <div className="mb-4">
+          <label className="block mb-2 font-semibold">
+            Xidmətlə bağlı təəssüratınız necə idi?
+          </label>
+          <div className="flex gap-[3px] text-[25px] mb-[10px] cursor-pointer">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`cursor-pointer ${
+                  star <= rating
+                    ? "text-yellow-400 fill-yellow-400"
+                    : "text-yellow-400"
+                }`}
+                onClick={() => setRating(star === rating ? 0 : star)}
+              />
+            ))}
+          </div>
+          {ratingError && (
+            <p className="text-red-500 text-sm mb-[30px] font-semibold">
+              {ratingError}
+            </p>
+          )}
+          <textarea
+            placeholder='"Yaşadığınız təcrübəni bizimlə bölüşün" '
+            className="w-full border border-gray-300 h-[147px] rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => setText(e.target.value)}
+            value={text}
+          ></textarea>
+          {textError && (
+            <p className="text-red-500 text-sm mb-[30px] font-semibold">
+              {textError}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="block mb-2 font-semibold mt-[40px]">
+            Şəkil əlavə edin (istəyə bağlıdır)
+          </label>
+          <div
+            className={`w-48 h-48 border-dashed border-[3px] rounded-lg flex flex-col items-center justify-center mb-[50px] cursor-pointer text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors${
+              imageUploadValidationError
+                ? "border-red-500 text-red-500"
+                : "border-gray-300"
+            }`}
+            onClick={handleclick}
+          >
+            <span className="mb-1">Şəkil əlavə edin</span>
+            <ImageIcon className="w-6 h-6" />
+            <input
+              type="file"
+              ref={inputref}
+              key={inputKey}
+              className="hidden"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+            />
+          </div>
+          {images.length > 0 && (
+            <div className="flex gap-4 flex-wrap mb-4">
+              {images.map((image, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={URL.createObjectURL(image) || "/placeholder.svg"}
+                    alt={`şəkil-${index}`}
+                    className="w-[100px] h-[100px] object-cover rounded border border-gray-300"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold"
+                    aria-label="Şəkli sil"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {imageError && (
+          <p className="text-red-500 text-sm mt-2 font-semibold">
+            {imageError}
+          </p>
         )}
-      </div>
-      {tagError && (
-        <p className="text-red-500 text-sm mb-[30px] font-semibold">
-          {tagError}
-        </p>
-      )}
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="bg-[#1A4862] hover:bg-[#1A4862]/90 text-white px-4 py-2 rounded-md text-lg font-semibold"
-          disabled={submitStatus.loading}
-        >
-          {submitStatus.loading ? "Göndərilir..." : "Rəyinizi göndərin"}
-        </button>
-      </div>
-    </form>
+        <div className="mb-4 max-w-[750px]">
+          <p className="font-semibold mb-[20px]">
+            Xidməti xarakterizə edən etiketləri seçin (maks. 5 ədəd)
+          </p>
+          <div className="flex flex-wrap gap-[10px]">
+            {TAGS.map((tag) => (
+              <button
+                type="button"
+                onClick={() => tagselector(tag)}
+                className={`border-2 px-[10px] py-[7px] rounded text-[16px] transition-colors duration-200 ${
+                  tagError ? "border-red-500" : ""
+                } ${
+                  selectedTags.includes(tag)
+                    ? "border-[#1a4862] text-[#1a4862] bg-[#cde4f2]"
+                    : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+                }`}
+                key={tag}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+          {error && (
+            <p className="text-red-500 text-sm mt-2 font-semibold">{error}</p>
+          )}
+        </div>
+        {tagError && (
+          <p className="text-red-500 text-sm mb-[30px] font-semibold">
+            {tagError}
+          </p>
+        )}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="bg-[#1A4862] hover:bg-[#1A4862]/90 text-white px-4 py-2 rounded-md text-lg font-semibold"
+            disabled={submitStatus.loading}
+          >
+            {submitStatus.loading ? "Göndərilir..." : "Rəyinizi göndərin"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

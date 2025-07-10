@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import React, { useEffect } from "react";
-
+import Sidebar from "../sidebar";
+import ReviewDisplay from "../components/review-display";
+import ReviewForm from "../components/review-form";
 
 export default function ReviewPage() {
   const { masterId } = useParams();
