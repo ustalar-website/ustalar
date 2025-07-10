@@ -282,7 +282,7 @@ function Register() {
     } else if (name === "password") {
       return /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\-_+])[A-Za-z\d!@#\-_+]{8,15}$/;
     } else if (name === "custom_profession") {
-      return /^[AaBbCcÇçDdEeƏəFfGgĞğHhXxIıİiJjKkQqLlMmNnOoÖöPpRrSsŞşTtUuÜüVvYyZz ]{2,40}$/;
+      return /^[A-Za-zÇçƏəĞğİiÖöŞşÜü ]{2,40}$/;
     }
     return null;
   };
@@ -750,7 +750,7 @@ function Register() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="bg-[rgba(26,72,98,1)] h-[100px] sticky top-0 left-0 z-50 flex justify-between px-[20px] py-[20px]">
-        <h2 className="text-white font-semibold text-[30px]"></h2> 
+        <h2 className="text-white font-semibold text-[30px]"></h2>
         <p className="text-white cursor-pointer" onClick={handleClick}>
           Hesabınız var? Daxil olun
         </p>
@@ -813,9 +813,7 @@ function Register() {
                     "ArrowRight",
                     "Delete",
                   ].includes(e.key);
-                  const isLetter = /^[a-zA-ZəöüçğışƏÖÜÇĞŞİIА-Яа-яЁё]$/.test(
-                    e.key
-                  );
+                  const isLetter = /^[a-zA-ZəöüçğışƏÖÜÇĞŞİI ]$/.test(e.key);
                   if (!isLetter && !isControlKey) e.preventDefault();
                 }}
                 placeholder="Adınızı daxil edin"
