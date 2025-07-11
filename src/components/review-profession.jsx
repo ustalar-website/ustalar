@@ -1,3 +1,5 @@
+"use client";
+
 import { Star, CalendarDays } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -25,19 +27,19 @@ const TAG_DISPLAY_MAPPING = {
 
 export default function ReviewProfession() {
   const { masterId } = useParams();
+
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [selectedSortOption, setSelectedSortOption] = useState("newest");
-
   const [showImageModal, setShowImageModal] = useState(false);
   const [currentModalImage, setCurrentModalImage] = useState("");
 
   const sortOptions = [
-    { label: "Ən yenilər", value: "newest", apiParam: "-created_at" },
-    { label: "Ən yüksək reytinq", value: "highest", apiParam: "-rating" },
-    { label: "Ən aşağı reytinq", value: "lowest", apiParam: "rating" },
+    { label: "Ən yenilər", value: "newest" },
+    { label: "Ən yüksək reytinq", value: "highest" },
+    { label: "Ən aşağı reytinq", value: "lowest" },
   ];
 
   const fetchReviews = useCallback(async () => {
@@ -64,26 +66,18 @@ export default function ReviewProfession() {
         "Noyabr",
         "Dekabr",
       ];
-
       const day = date.getDate();
       const month = months[date.getMonth()];
       const year = date.getFullYear();
-
       return `${day} ${month} ${year}`;
     }
 
     setLoading(true);
     setError(null);
     setReviews([]);
-
     try {
-      const sortParam =
-        sortOptions.find((option) => option.value === selectedSortOption)
-          ?.apiParam || "";
-      const url = `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/${
-        sortParam ? `?ordering=${sortParam}` : ""
-      }`;
-
+      // Removed sortParam from URL to handle sorting on frontend
+      const url = `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/`;
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -113,6 +107,7 @@ export default function ReviewProfession() {
         } else if (nameParts.length === 1 && nameParts[0]) {
           initials = nameParts[0].charAt(0);
         }
+
         const profileImageUrl = apiReview.user?.profile_image
           ? getImageUrl(apiReview.user.profile_image)
           : undefined;
@@ -123,6 +118,7 @@ export default function ReviewProfession() {
           isAnonymous: !apiReview.username,
           rating: apiReview.rating,
           date: formatReviewDate(apiReview.created_at),
+          createdAt: apiReview.created_at, // Keep original date string for sorting
           text: apiReview.comment,
           tags: Object.entries(TAG_DISPLAY_MAPPING)
             .filter(([key]) => apiReview[key] === true)
@@ -135,6 +131,19 @@ export default function ReviewProfession() {
           profileInitials: initials.toUpperCase(),
         };
       });
+
+      // Apply frontend sorting
+      formattedReviews.sort((a, b) => {
+        if (selectedSortOption === "newest") {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        } else if (selectedSortOption === "highest") {
+          return b.rating - a.rating;
+        } else if (selectedSortOption === "lowest") {
+          return a.rating - b.rating;
+        }
+        return 0;
+      });
+
       setReviews(formattedReviews);
     } catch (err) {
       console.error("Error fetching reviews:", err);
@@ -143,20 +152,20 @@ export default function ReviewProfession() {
     } finally {
       setLoading(false);
     }
-  }, [masterId, selectedSortOption]);
+  }, [masterId, selectedSortOption]); // Re-fetch when sort option changes
 
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
 
-  const calculateRatingDistribution = (reviews) => {
+  const calculateRatingDistribution = (reviewsToDistribute) => {
     const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    reviews.forEach((review) => {
+    reviewsToDistribute.forEach((review) => {
       if (review.rating >= 1 && review.rating <= 5) {
         distribution[review.rating]++;
       }
     });
-    const totalReviews = reviews.length;
+    const totalReviews = reviewsToDistribute.length;
     const percentages = {};
     for (let i = 1; i <= 5; i++) {
       percentages[i] =
@@ -165,22 +174,31 @@ export default function ReviewProfession() {
     return { distribution, percentages, totalReviews };
   };
 
-  const calculateOverallRating = (reviews) => {
-    if (reviews.length === 0) return { average: 0, total: 0 };
-    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+  const calculateOverallRating = (reviewsToRate) => {
+    if (reviewsToRate.length === 0) return { average: 0, total: 0 };
+    const totalRating = reviewsToRate.reduce(
+      (sum, review) => sum + review.rating,
+      0
+    );
     return {
-      average: (totalRating / reviews.length).toFixed(1),
-      total: reviews.length,
+      average: (totalRating / reviewsToRate.length).toFixed(1),
+      total: reviewsToRate.length,
     };
   };
 
-  const { distribution, percentages, totalReviews } =
-    calculateRatingDistribution(reviews);
+  // These now operate directly on the 'reviews' state, which is already sorted
+  const {
+    distribution,
+    percentages,
+    totalReviews: currentTotalReviews,
+  } = calculateRatingDistribution(reviews);
   const { average: overallAverage, total: overallTotal } =
     calculateOverallRating(reviews);
 
   const [showMoreReview, setShowMoreReview] = useState(false);
-  const existingTags = [...new Set(reviews.flatMap((r) => r.tags))];
+
+  // Get all unique tags from the *original* fetched reviews for display
+  const allAvailableTags = [...new Set(reviews.flatMap((r) => r.tags))];
 
   const openImageModal = (imageUrl) => {
     setCurrentModalImage(imageUrl);
@@ -247,11 +265,11 @@ export default function ReviewProfession() {
             <h3 className="font-semibold text-[20px] mb-4">
               Haqqında etiketlər
             </h3>
-            {existingTags.length === 0 ? (
+            {allAvailableTags.length === 0 ? (
               <p className="text-gray-500 text-sm">Etiket tapılmadı.</p>
             ) : (
               <div className="flex flex-wrap gap-2">
-                {existingTags.map((tag) => (
+                {allAvailableTags.map((tag) => (
                   <span
                     key={tag}
                     className="bg-[#CDE4F2] p-3 rounded-xl text-[#1a4862]"
@@ -263,6 +281,7 @@ export default function ReviewProfession() {
             )}
           </div>
         </div>
+
         <div className="mb-6">
           <div className="mb-4">
             <h3 className="font-bold text-cyan-900 text-xl mb-2">
@@ -412,7 +431,7 @@ export default function ReviewProfession() {
             </button>
           </div>
         )}
-        <div className="flex justify-end mt-4 mr-10">
+        <div className="flex justify-end mt-4">
           <Link
             to={`/master/${masterId}/reviews`}
             className="px-6 py-3 bg-cyan-900 hover:bg-cyan-800 text-white rounded-md  text-center"
@@ -430,7 +449,6 @@ export default function ReviewProfession() {
             >
               &times;
             </button>
-
             <div className="bg-white p-2 rounded-lg shadow-xl overflow-hidden">
               <img
                 src={currentModalImage || "/placeholder.svg"}
