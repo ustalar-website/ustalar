@@ -1,14 +1,16 @@
-import React, { useRef, useState } from "react";
-import { ImageIcon, Star } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
-import ProfilNavbar from "../profil-navbar";
-import axios from "axios";
+
+import React, { useRef, useState } from "react"
+import { ImageIcon, Star } from "lucide-react"
+import { useParams, useNavigate } from "react-router-dom"
+import ProfilNavbar from "../profil-navbar" 
+import axios from "axios"
 
 export default function ReviewForm() {
-  const { masterId } = useParams();
-  const navigate = useNavigate();
-  const inputref = useRef(null);
-  const handleclick = () => inputref.current?.click();
+  const { masterId } = useParams()
+  const navigate = useNavigate()
+
+  const inputref = useRef(null)
+  const handleclick = () => inputref.current?.click()
 
   const TAG_MAPPING = {
     "#Məsuliyyət": "responsible",
@@ -21,214 +23,198 @@ export default function ReviewForm() {
     "#Səmərəli": "efficient",
     "#Çevik": "agile",
     "#Səbirli": "patient",
-  };
-  const TAGS = Object.keys(TAG_MAPPING);
+  }
+  const TAGS = Object.keys(TAG_MAPPING)
 
-  const [name, setName] = useState("");
-  const [rating, setRating] = useState(0);
-  const [error, setError] = useState("");
-  const [text, setText] = useState("");
-  const [nameError, setNameError] = useState("");
-  const [ratingError, setRatingError] = useState("");
-  const [textError, setTextError] = useState("");
-  const [tagError, setTagError] = useState("");
-  const [imageError, setImageError] = useState("");
-  const [imageUploadValidationError, setImageUploadValidationError] =
-    useState(false);
+  const [name, setName] = useState("")
+  const [rating, setRating] = useState(0)
+  const [error, setError] = useState("")
+  const [text, setText] = useState("")
+  const [nameError, setNameError] = useState("")
+  const [ratingError, setRatingError] = useState("")
+  const [textError, setTextError] = useState("")
+  const [tagError, setTagError] = useState("")
+  const [imageError, setImageError] = useState("")
+  const [imageUploadValidationError, setImageUploadValidationError] = useState(false)
   const [submitStatus, setSubmitStatus] = useState({
     loading: false,
     success: false,
     message: "",
-  });
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [images, setImages] = useState([]);
-  const [inputKey, setInputKey] = useState(Date.now());
+  })
+  const [selectedTags, setSelectedTags] = useState([])
+  const [images, setImages] = useState([])
+  const [inputKey, setInputKey] = useState(Date.now())
 
   const tagselector = (tag) => {
     if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
-      setError("");
-      setTagError("");
+      setSelectedTags(selectedTags.filter((t) => t !== tag))
+      setError("")
+      setTagError("")
     } else if (selectedTags.length < 5) {
-      setSelectedTags([...selectedTags, tag]);
-      setError("");
-      setTagError("");
+      setSelectedTags([...selectedTags, tag])
+      setError("")
+      setTagError("")
     } else {
-      setError("5 tagdan artıq seçə bilməzsiniz");
+      setError("5 tagdan artıq seçə bilməzsiniz")
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("ReviewForm: masterId prop:", masterId);
+    e.preventDefault()
+    console.log("ReviewForm: masterId prop:", masterId)
 
     if (!masterId) {
       setSubmitStatus({
         loading: false,
         success: false,
         message: "Usta tapılmadı. Rəy göndərilə bilmədi.",
-      });
-      return;
+      })
+      return
     }
 
-    let isValid = true;
+    let isValid = true
     if (name.trim() === "") {
-      setNameError("Zəhmət olmasa adınızı daxil edin");
-      isValid = false;
+      setNameError("Zəhmət olmasa adınızı daxil edin")
+      isValid = false
     } else if (name.length < 2 || name.length > 50) {
-      setNameError("Ad 2-50 simvol aralığında olmalıdır");
-      isValid = false;
+      setNameError("Ad 2-50 simvol aralığında olmalıdır")
+      isValid = false
     } else {
-      setNameError("");
+      setNameError("")
     }
 
     if (rating === 0) {
-      setRatingError("Lütfən bir reytinq seçin");
-      isValid = false;
+      setRatingError("Lütfən bir reytinq seçin")
+      isValid = false
     } else {
-      setRatingError("");
+      setRatingError("")
     }
 
     if (text.trim() === "") {
-      setTextError("Zəhmət olmasa rəyinizi yazın");
-      isValid = false;
+      setTextError("Zəhmət olmasa rəyinizi yazın")
+      isValid = false
     } else {
-      setTextError("");
+      setTextError("")
     }
 
     if (selectedTags.length === 0) {
-      setTagError("Zəhmət olmasa ən azı bir etiket seçin");
-      isValid = false;
+      setTagError("Zəhmət olmasa ən azı bir etiket seçin")
+      isValid = false
     } else {
-      setTagError("");
+      setTagError("")
     }
 
-    setImageError("");
-    setImageUploadValidationError(false);
+    setImageError("")
+    setImageUploadValidationError(false)
 
     if (!isValid) {
       setSubmitStatus({
         loading: false,
         success: false,
         message: "Zəhmət olmasa bütün tələb olunan sahələri doldurun.",
-      });
-      return;
+      })
+      return
     }
 
-    setSubmitStatus({ loading: true, success: false, message: "" });
+    setSubmitStatus({ loading: true, success: false, message: "" })
 
-    const formData = new FormData();
-    formData.append("username", name);
-    formData.append("rating", rating.toString());
-    formData.append("comment", text);
-
-    const authToken = localStorage.getItem("authToken");
+    const formData = new FormData()
+    formData.append("username", name)
+    formData.append("rating", rating.toString())
+    formData.append("comment", text)
 
     selectedTags.forEach((frontendTag) => {
-      const apiField = TAG_MAPPING[frontendTag];
+      const apiField = TAG_MAPPING[frontendTag]
       if (apiField) {
-        formData.append(apiField, "true");
+        formData.append(apiField, "true")
       }
-    });
+    })
 
     images.forEach((image) => {
-      formData.append("review_images", image, image.name);
-    });
+      formData.append("review_images", image, image.name)
+    })
 
     const headers = {
       "Content-Type": "multipart/form-data",
-    };
-
-    if (authToken) {
-      headers["Authorization"] = `Bearer ${authToken}`;
     }
 
     try {
       const response = await axios.post(
         `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/create/`,
         formData,
-        { headers }
-      );
+        { headers },
+      )
       setSubmitStatus({
         loading: false,
         success: true,
         message: "Rəyiniz uğurla göndərildi!",
-      });
-      navigate(`/master/${masterId}`);
-      setRating(0);
-      setText("");
-      setSelectedTags([]);
-      setImages([]);
-      setInputKey(Date.now());
-      setName("");
-      setImageUploadValidationError(false);
+      })
+      navigate(`/master/${masterId}`)
+      setRating(0)
+      setText("")
+      setSelectedTags([])
+      setImages([])
+      setInputKey(Date.now())
+      setName("")
+      setImageUploadValidationError(false)
     } catch (err) {
-      console.error("Network Error:", err);
-      const errorData = err.response?.data;
+      console.error("Network Error:", err)
+      const errorData = err.response?.data
       setSubmitStatus({
         loading: false,
         success: false,
-        message: `Rəy göndərilərkən xəta baş verdi: ${
-          errorData?.detail || err.message
-        }`,
-      });
+        message: `Rəy göndərilərkən xəta baş verdi: ${errorData?.detail || err.message}`,
+      })
     }
-  };
+  }
 
   const handleImageChange = (e) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    const totalImages = [...images, ...selectedFiles];
+    const selectedFiles = Array.from(e.target.files || [])
+    const totalImages = [...images, ...selectedFiles]
 
-    const isImage = (file) => file.type.startsWith("image/");
+    const isImage = (file) => file.type.startsWith("image/")
     if (!selectedFiles.every(isImage)) {
-      setImageError("Yalnız şəkil faylları yükləyə bilərsiniz.");
-      setInputKey(Date.now());
-      setImageUploadValidationError(true);
-      return;
+      setImageError("Yalnız şəkil faylları yükləyə bilərsiniz.")
+      setInputKey(Date.now())
+      setImageUploadValidationError(true)
+      return
     }
 
-    const oversized = selectedFiles.some((file) => file.size > 5 * 1024 * 1024);
+    const oversized = selectedFiles.some((file) => file.size > 5 * 1024 * 1024)
     if (oversized) {
-      setImageError("Şəklin ölçüsü 5MB-dan çox ola bilməz.");
-      setInputKey(Date.now());
-      setImageUploadValidationError(true);
-      return;
+      setImageError("Şəklin ölçüsü 5MB-dan çox ola bilməz.")
+      setInputKey(Date.now())
+      setImageUploadValidationError(true)
+      return
     }
 
     if (totalImages.length > 3) {
-      setImageError("Ən çox 3 şəkil yükləyə bilərsiniz.");
-      setInputKey(Date.now());
-      setImageUploadValidationError(true);
-      return;
+      setImageError("Ən çox 3 şəkil yükləyə bilərsiniz.")
+      setInputKey(Date.now())
+      setImageUploadValidationError(true)
+      return
     }
 
-    setImages(totalImages);
-    setImageError("");
-    setImageUploadValidationError(false);
-  };
+    setImages(totalImages)
+    setImageError("")
+    setImageUploadValidationError(false)
+  }
 
   const handleRemoveImage = (indexToRemove) => {
-    setImages((prevImages) =>
-      prevImages.filter((_, index) => index !== indexToRemove)
-    );
-    setImageError("");
-    setImageUploadValidationError(false);
-  };
+    setImages((prevImages) => prevImages.filter((_, index) => index !== indexToRemove))
+    setImageError("")
+    setImageUploadValidationError(false)
+  }
 
   return (
     <div>
       <ProfilNavbar />
-      <form
-        className="mx-auto p-6 max-w-[1400px] bg-white rounded-lg"
-        onSubmit={handleSubmit}
-      >
+      <form className="mx-auto p-6 max-w-[1400px] bg-white rounded-lg" onSubmit={handleSubmit}>
         <h2 className="font-bold text-xl mb-4">Xidmət haqqında rəy yazın</h2>
         {submitStatus.message && (
           <div
             className={`mb-4 p-3 rounded-md text-center ${
-              submitStatus.success
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+              submitStatus.success ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
             }`}
           >
             {submitStatus.message}
@@ -249,55 +235,33 @@ export default function ReviewForm() {
               nameError ? "border-red-500" : "border-gray-300"
             }`}
           />
-          {nameError && (
-            <p className="text-red-500 text-sm mb-[30px] font-semibold">
-              {nameError}
-            </p>
-          )}
+          {nameError && <p className="text-red-500 text-sm mb-[30px] font-semibold">{nameError}</p>}
         </div>
         <div className="mb-4">
-          <label className="block mb-2 font-semibold">
-            Xidmətlə bağlı təəssüratınız necə idi?
-          </label>
+          <label className="block mb-2 font-semibold">Xidmətlə bağlı təəssüratınız necə idi?</label>
           <div className="flex gap-[3px] text-[25px] mb-[10px] cursor-pointer">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`cursor-pointer ${
-                  star <= rating
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-yellow-400"
-                }`}
+                className={`cursor-pointer ${star <= rating ? "text-yellow-400 fill-yellow-400" : "text-yellow-400"}`}
                 onClick={() => setRating(star === rating ? 0 : star)}
               />
             ))}
           </div>
-          {ratingError && (
-            <p className="text-red-500 text-sm mb-[30px] font-semibold">
-              {ratingError}
-            </p>
-          )}
+          {ratingError && <p className="text-red-500 text-sm mb-[30px] font-semibold">{ratingError}</p>}
           <textarea
             placeholder='"Yaşadığınız təcrübəni bizimlə bölüşün" '
             className="w-full border border-gray-300 h-[147px] rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             onChange={(e) => setText(e.target.value)}
             value={text}
           ></textarea>
-          {textError && (
-            <p className="text-red-500 text-sm mb-[30px] font-semibold">
-              {textError}
-            </p>
-          )}
+          {textError && <p className="text-red-500 text-sm mb-[30px] font-semibold">{textError}</p>}
         </div>
         <div>
-          <label className="block mb-2 font-semibold mt-[40px]">
-            Şəkil əlavə edin (istəyə bağlıdır)
-          </label>
+          <label className="block mb-2 font-semibold mt-[40px]">Şəkil əlavə edin (istəyə bağlıdır)</label>
           <div
             className={`w-48 h-48 border-dashed border-[3px] rounded-lg flex flex-col items-center justify-center mb-[50px] cursor-pointer text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors${
-              imageUploadValidationError
-                ? "border-red-500 text-red-500"
-                : "border-gray-300"
+              imageUploadValidationError ? "border-red-500 text-red-500" : "border-gray-300"
             }`}
             onClick={handleclick}
           >
@@ -335,15 +299,9 @@ export default function ReviewForm() {
             </div>
           )}
         </div>
-        {imageError && (
-          <p className="text-red-500 text-sm mt-2 font-semibold">
-            {imageError}
-          </p>
-        )}
+        {imageError && <p className="text-red-500 text-sm mt-2 font-semibold">{imageError}</p>}
         <div className="mb-4 max-w-[750px]">
-          <p className="font-semibold mb-[20px]">
-            Xidməti xarakterizə edən etiketləri seçin (maks. 5 ədəd)
-          </p>
+          <p className="font-semibold mb-[20px]">Xidməti xarakterizə edən etiketləri seçin (maks. 5 ədəd)</p>
           <div className="flex flex-wrap gap-[10px]">
             {TAGS.map((tag) => (
               <button
@@ -362,15 +320,9 @@ export default function ReviewForm() {
               </button>
             ))}
           </div>
-          {error && (
-            <p className="text-red-500 text-sm mt-2 font-semibold">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm mt-2 font-semibold">{error}</p>}
         </div>
-        {tagError && (
-          <p className="text-red-500 text-sm mb-[30px] font-semibold">
-            {tagError}
-          </p>
-        )}
+        {tagError && <p className="text-red-500 text-sm mb-[30px] font-semibold">{tagError}</p>}
         <div className="flex justify-end">
           <button
             type="submit"
@@ -382,5 +334,5 @@ export default function ReviewForm() {
         </div>
       </form>
     </div>
-  );
+  )
 }
