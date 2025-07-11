@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Footer from "../../components/Footer";
+import Footer from "../../home/components/Footer";
 import SuccessModal from "../../components/SuccessModal";
 import { Eye, EyeOff } from "lucide-react";
 import backgroundpng from "../../assets/background.png";

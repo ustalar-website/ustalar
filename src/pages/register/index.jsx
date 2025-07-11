@@ -1,4 +1,3 @@
-
 import { useNavigate, Link } from "react-router-dom";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import React, { useRef, useState, useEffect, useCallback } from "react";
@@ -12,7 +11,8 @@ import axios from "axios";
 import { format, subYears, isValid, parseISO } from "date-fns";
 import Swal from "sweetalert2";
 import backgroundPng from "../../assets/background.png";
-import Footer from "../../components/Footer";
+import Footer from "../../home/components/Footer";
+import Logo from "../../../public/ag-logo.png";
 
 const cities = [
   "Ağcabədi",
@@ -717,9 +717,9 @@ function Register() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="bg-[rgba(26,72,98,1)] h-[100px] sticky top-0 left-0 z-50 flex justify-between px-[20px] py-[20px] items-center">
+      <div className="bg-[rgba(26,72,98,1)] h-[100px] z-50 flex justify-between px-[20px] py-[20px] items-center">
         <Link to="/" className="text-white text-lg font-bold">
-          <img src="./ag-logo.png" alt="logo" className="h-15 w-auto ml-10"/>
+          <img src={Logo} alt="logo" className="h-15 w-auto ml-10" />
         </Link>
         <p className="text-white cursor-pointer" onClick={handleClick}>
           Hesabınız var? Daxil olun
