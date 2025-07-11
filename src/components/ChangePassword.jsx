@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import backgroundpng from "../assets/background.png";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function EditPassword() {
   const navigate = useNavigate();
@@ -313,293 +313,311 @@ export default function EditPassword() {
   };
 
   return (
-    <div
-      className="relative flex items-center justify-center min-h-screen bg-white/70 backdrop-blur-sm rounded-lg shadow-lg bg-cover bg-center"
-      style={{ backgroundImage: `url('${backgroundpng}'` }}
-    >
-      <div className="absolute inset-0 bg-black opacity-30"></div>
-
-      <div className="relative bg-white/82 backdrop-blur-xs border border-white/30 p-8 rounded-lg shadow-xl w-[28rem] z-10">
-        <h3 className="text-2xl font-semibold text-[#1A4862] mb-5 text-start">
-          Şifrənizi bərpa edin
-        </h3>
-
-        {errorMessage && (
-          <p className="text-red-500 text-center mb-4">{errorMessage}</p>
-        )}
-
-        {currentStep === 1 && (
-          <>
-            <div className="mb-6">
-              <label
-                htmlFor="mobileNumber"
-                className="flex items-center gap-2 text-[#656F83] text-[.9rem] mb-2"
-              >
-                Mobil nömrə <span className="text-red-500 text-lg">*</span>
-              </label>
-              <div className="flex border border-[#C3C8D1] rounded-lg overflow-hidden h-[3.2rem]">
-                <span className=" p-3 flex items-center text-[#1A4862] font-semibold border rounded-l-lg">
-                  +994
-                </span>
-                <input
-                  type="tel"
-                  id="mobileNumber"
-                  placeholder="50 123 45 67"
-                  value={mobileNumber}
-                  onChange={handleMobileNumberChange}
-                  className="flex-grow outline-none p-3 text-[#1A4862] placeholder-[#656F83]"
-                  maxLength="9"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2 justify-center">
-              <button
-                onClick={handleBack}
-                className="cursor-pointer flex-1 h-[2.7rem] bg-white border border-[#C3C8D1] text-[#1A4862] text-[15px] font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                >
-                  <path
-                    d="M15 18L9 12L15 6"
-                    stroke="#1A4862"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Geri
-              </button>
-              <button
-                onClick={handleNext}
-                className="cursor-pointer w-[65%] h-[2.7rem] bg-[#1A4862] text-white text-[15px] font-semibold rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
-              >
-                SMS göndər
-                <img src="./sms.svg" alt="sms" />
-              </button>
-            </div>
-          </>
-        )}
-
-        {currentStep === 2 && (
-          <>
-            <p className="text-[#656F83] text-center mb-6">
-              OTP kodu daxil edin.
-              <br />
-              +994 {mobileNumber ? mobileNumber : "XX XXX XX XX"} nömrəsinə
-              göndərildi.
-            </p>
-            <div className="flex justify-center gap-2 mb-4">
-              {otpCode.map((digit, index) => (
-                <input
-                  key={index}
-                  type="text"
-                  maxLength="1"
-                  value={digit}
-                  onChange={(e) => handleOtpChange(e, index)}
-                  onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                  ref={(el) => (otpInputRefs.current[index] = el)}
-                  className="w-10 h-10 border bg-[#F3F4F6] border-[#F3F4F6] rounded-lg text-center text-xl font-bold outline-none focus:border-[#3187B8] text-[#1A4862]"
-                />
-              ))}
-            </div>
-            <p className="text-center text-[#656F83] text-sm mb-6">
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleResendOtp();
-                }}
-                className={`font-semibold ${
-                  isCountingDown
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-[#3187B8] hover:underline"
-                }`}
-                style={{ pointerEvents: isCountingDown ? "none" : "auto" }}
-              >
-                <span className="text-[#3187B8] pr-1">Yenidən göndər</span>
-              </a>{" "}
-              {isCountingDown &&
-                `00:${countdown < 10 ? `0${countdown}` : countdown}`}
-            </p>
-            <div className="flex gap-2 justify-center">
-              <button
-                onClick={handleBack}
-                className="cursor-pointer flex-1 h-[2.7rem] bg-white border border-[#C3C8D1] text-[#1A4862] text-[15px] font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                >
-                  <path
-                    d="M15 18L9 12L15 6"
-                    stroke="#1A4862"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Geri
-              </button>
-              <button
-                onClick={handleNext}
-                className="cursor-pointer w-[65%] h-[2.7rem] bg-[#1A4862] text-white text-[15px] font-semibold rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
-              >
-                Təsdiqlə
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                >
-                  <path
-                    d="M9 6L15 12L9 18"
-                    stroke="#FFFFFF"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
-          </>
-        )}
-
-        {currentStep === 3 && (
-          <>
-            <div className="mb-4">
-              <label
-                htmlFor="newPassword"
-                className="flex items-center gap-2 text-[#656F83] text-[.9rem] mb-2"
-              >
-                Yeni şifrə <span className="text-red-500 text-lg">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={showNewPassword ? "text" : "password"}
-                  id="newPassword"
-                  placeholder="Şifrənizi daxil edin"
-                  value={newPassword}
-                  onChange={handleNewPasswordChange}
-                  className="w-full h-[3.2rem] border border-[#C3C8D1] rounded-lg outline-none p-3 pr-10 text-[#1A4862] placeholder-[#656F83]"
-                />
-                <button
-                  type="button"
-                  onClick={toggleNewPasswordVisibility}
-                  className="w-6 h-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#1A4862]"
-                >
-                  {showNewPassword ? <Eye size={20} /> : <EyeOff size={20} />}
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label
-                htmlFor="confirmNewPassword"
-                className="flex items-center gap-2 text-[#656F83] text-[.9rem] mb-2"
-              >
-                Şifrəni təkrar yazın{" "}
-                <span className="text-red-500 text-lg">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirmNewPassword ? "text" : "password"}
-                  id="confirmNewPassword"
-                  placeholder="Şifrənizi təkrar daxil edin"
-                  value={confirmNewPassword}
-                  onChange={handleConfirmNewPasswordChange}
-                  className="w-full h-[3.2rem] border border-[#C3C8D1] rounded-lg outline-none p-3 pr-10 text-[#1A4862] placeholder-[#656F83]"
-                />
-                <button
-                  type="button"
-                  onClick={toggleConfirmNewPasswordVisibility}
-                  className="w-6 h-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#1A4862]"
-                >
-                  {showConfirmNewPassword ? (
-                    <Eye size={20} />
-                  ) : (
-                    <EyeOff size={20} />
-                  )}
-                </button>
-              </div>
-            </div>
-            <div className="flex gap-2 justify-center">
-              <button
-                onClick={handleBack}
-                className="cursor-pointer flex-1 h-[2.7rem] bg-white border border-[#C3C8D1] text-[#1A4862] text-[15px] font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                >
-                  <path
-                    d="M15 18L9 12L15 6"
-                    stroke="#1A4862"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Geri
-              </button>
-              <button
-                onClick={handleNext}
-                className="cursor-pointer w-[65%] h-[2.7rem] bg-[#1A4862] text-white text-[15px] font-semibold rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
-              >
-                Şifrəni yenilə{" "}
-                <img src="/check.svg" alt="check icon" className="w-5 h-5" />
-              </button>
-            </div>
-          </>
-        )}
-
-        <p className="text-center text-[#656F83] text-sm mt-5">
-          Hesabınız yoxdur?{" "}
-          <a
-            href="../register/"
-            className="text-[#3187B8] font-semibold hover:underline"
+    <div className="min-h-screen flex flex-col">
+      <div className="bg-[#1A4862] px-6 py-4 flex-shrink-0">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <Link to="/" className="text-white text-lg font-bold">
+            <img src="./ag-logo.png" alt="logo" className="h-15 w-auto" />
+          </Link>
+          <button
             onClick={handleRegisterClick}
+            className="text-white text-sm hover:underline"
           >
-            Qeydiyyatdan keçin
-          </a>
-        </p>
+            Hesabınız yoxdur? Qeydiyyatdan keçin
+          </button>
+        </div>
       </div>
 
-      {showSuccessPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-[24rem] text-center">
-            <div className="flex justify-center mb-6">
-              <img src="/Succes.svg" alt="success-icon" className="w-16 h-16" />
-            </div>
-            <h3 className="text-2xl font-bold text-[#1A4862] mb-3">
-              Şifrəniz uğurla bərpa edildi!
-            </h3>
-            <button
-              onClick={handleSuccessOk}
-              className="cursor-pointer px-8 py-3 bg-[#1A4862] text-white text-lg font-semibold rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2 mx-auto"
+      <div
+        className="relative flex items-center justify-center min-h-screen bg-white/70 backdrop-blur-sm shadow-lg bg-cover bg-center"
+        style={{ backgroundImage: `url('${backgroundpng}'` }}
+      >
+        <div className="relative bg-white/82 backdrop-blur-xs border border-white/30 p-8 rounded-lg shadow-xl w-[28rem] z-10">
+          <h3 className="text-2xl font-semibold text-[#1A4862] mb-5 text-start">
+            Şifrənizi bərpa edin
+          </h3>
+
+          {errorMessage && (
+            <p className="text-red-500 text-center mb-4">{errorMessage}</p>
+          )}
+
+          {currentStep === 1 && (
+            <>
+              <div className="mb-6">
+                <label
+                  htmlFor="mobileNumber"
+                  className="flex items-center gap-2 text-[#656F83] text-[.9rem] mb-2"
+                >
+                  Mobil nömrə <span className="text-red-500 text-lg">*</span>
+                </label>
+                <div className="flex border border-[#C3C8D1] rounded-lg overflow-hidden h-[3.2rem]">
+                  <span className=" p-3 flex items-center text-[#1A4862] font-semibold border rounded-l-lg">
+                    +994
+                  </span>
+                  <input
+                    type="tel"
+                    id="mobileNumber"
+                    placeholder="50 123 45 67"
+                    value={mobileNumber}
+                    onChange={handleMobileNumberChange}
+                    className="flex-grow outline-none p-3 text-[#1A4862] placeholder-[#656F83]"
+                    maxLength="9"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-center">
+                <button
+                  onClick={handleBack}
+                  className="cursor-pointer flex-1 h-[2.7rem] bg-white border border-[#C3C8D1] text-[#1A4862] text-[15px] font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      d="M15 18L9 12L15 6"
+                      stroke="#1A4862"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Geri
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="cursor-pointer w-[65%] h-[2.7rem] bg-[#1A4862] text-white text-[15px] font-semibold rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
+                >
+                  SMS göndər
+                  <img src="./sms.svg" alt="sms" />
+                </button>
+              </div>
+            </>
+          )}
+
+          {currentStep === 2 && (
+            <>
+              <p className="text-[#656F83] text-center mb-6">
+                OTP kodu daxil edin.
+                <br />
+                +994 {mobileNumber ? mobileNumber : "XX XXX XX XX"} nömrəsinə
+                göndərildi.
+              </p>
+              <div className="flex justify-center gap-2 mb-4">
+                {otpCode.map((digit, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength="1"
+                    value={digit}
+                    onChange={(e) => handleOtpChange(e, index)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                    ref={(el) => (otpInputRefs.current[index] = el)}
+                    className="w-10 h-10 border bg-[#F3F4F6] border-[#F3F4F6] rounded-lg text-center text-xl font-bold outline-none focus:border-[#3187B8] text-[#1A4862]"
+                  />
+                ))}
+              </div>
+              <p className="text-center text-[#656F83] text-sm mb-6">
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleResendOtp();
+                  }}
+                  className={`font-semibold ${
+                    isCountingDown
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-[#3187B8] hover:underline"
+                  }`}
+                  style={{ pointerEvents: isCountingDown ? "none" : "auto" }}
+                >
+                  <span className="text-[#3187B8] pr-1">Yenidən göndər</span>
+                </a>{" "}
+                {isCountingDown &&
+                  `00:${countdown < 10 ? `0${countdown}` : countdown}`}
+              </p>
+              <div className="flex gap-2 justify-center">
+                <button
+                  onClick={handleBack}
+                  className="cursor-pointer flex-1 h-[2.7rem] bg-white border border-[#C3C8D1] text-[#1A4862] text-[15px] font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      d="M15 18L9 12L15 6"
+                      stroke="#1A4862"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Geri
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="cursor-pointer w-[65%] h-[2.7rem] bg-[#1A4862] text-white text-[15px] font-semibold rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
+                >
+                  Təsdiqlə
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      d="M9 6L15 12L9 18"
+                      stroke="#FFFFFF"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </>
+          )}
+
+          {currentStep === 3 && (
+            <>
+              <div className="mb-4">
+                <label
+                  htmlFor="newPassword"
+                  className="flex items-center gap-2 text-[#656F83] text-[.9rem] mb-2"
+                >
+                  Yeni şifrə <span className="text-red-500 text-lg">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showNewPassword ? "text" : "password"}
+                    id="newPassword"
+                    placeholder="Şifrənizi daxil edin"
+                    value={newPassword}
+                    onChange={handleNewPasswordChange}
+                    className="w-full h-[3.2rem] border border-[#C3C8D1] rounded-lg outline-none p-3 pr-10 text-[#1A4862] placeholder-[#656F83]"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleNewPasswordVisibility}
+                    className="w-6 h-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#1A4862]"
+                  >
+                    {showNewPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label
+                  htmlFor="confirmNewPassword"
+                  className="flex items-center gap-2 text-[#656F83] text-[.9rem] mb-2"
+                >
+                  Şifrəni təkrar yazın{" "}
+                  <span className="text-red-500 text-lg">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmNewPassword ? "text" : "password"}
+                    id="confirmNewPassword"
+                    placeholder="Şifrənizi təkrar daxil edin"
+                    value={confirmNewPassword}
+                    onChange={handleConfirmNewPasswordChange}
+                    className="w-full h-[3.2rem] border border-[#C3C8D1] rounded-lg outline-none p-3 pr-10 text-[#1A4862] placeholder-[#656F83]"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleConfirmNewPasswordVisibility}
+                    className="w-6 h-5 absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-[#1A4862]"
+                  >
+                    {showConfirmNewPassword ? (
+                      <Eye size={20} />
+                    ) : (
+                      <EyeOff size={20} />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <div className="flex gap-2 justify-center">
+                <button
+                  onClick={handleBack}
+                  className="cursor-pointer flex-1 h-[2.7rem] bg-white border border-[#C3C8D1] text-[#1A4862] text-[15px] font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      d="M15 18L9 12L15 6"
+                      stroke="#1A4862"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Geri
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="cursor-pointer w-[65%] h-[2.7rem] bg-[#1A4862] text-white text-[15px] font-semibold rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2"
+                >
+                  Şifrəni yenilə{" "}
+                  <img src="/check.svg" alt="check icon" className="w-5 h-5" />
+                </button>
+              </div>
+            </>
+          )}
+
+          <p className="text-center text-[#656F83] text-sm mt-5">
+            Hesabınız yoxdur?{" "}
+            <a
+              href="../register/"
+              className="text-[#3187B8] font-semibold hover:underline"
+              onClick={handleRegisterClick}
             >
-              <img src="/user.svg" alt="login icon" className="w-5 h-5" /> Daxil
-              ol
-            </button>
-          </div>
+              Qeydiyyatdan keçin
+            </a>
+          </p>
         </div>
-      )}
+
+        {showSuccessPopup && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-[24rem] text-center">
+              <div className="flex justify-center mb-6">
+                <img
+                  src="/Succes.svg"
+                  alt="success-icon"
+                  className="w-16 h-16"
+                />
+              </div>
+              <h3 className="text-2xl font-bold text-[#1A4862] mb-3">
+                Şifrəniz uğurla bərpa edildi!
+              </h3>
+              <button
+                onClick={handleSuccessOk}
+                className="cursor-pointer px-8 py-3 bg-[#1A4862] text-white text-lg font-semibold rounded-lg hover:bg-blue-900 transition-colors flex items-center justify-center gap-2 mx-auto"
+              >
+                <img src="/user.svg" alt="login icon" className="w-5 h-5" />{" "}
+                Daxil ol
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

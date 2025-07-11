@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer";
 import SuccessModal from "../../components/SuccessModal";
 import { Eye, EyeOff } from "lucide-react";
@@ -247,7 +247,9 @@ function Login() {
     <div className="min-h-screen flex flex-col">
       <div className="bg-[#1A4862] px-6 py-4 flex-shrink-0">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-white text-xl font-bold"></h1> 
+          <Link to="/" className="text-white text-lg font-bold">
+            <img src="./ag-logo.png" alt="logo" className="h-15 w-auto" />
+          </Link>
           <button
             onClick={handleRegisterClick}
             className="text-white text-sm hover:underline"

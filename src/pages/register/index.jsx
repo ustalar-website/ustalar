@@ -1,19 +1,18 @@
-"use client"
 
-import { useNavigate } from "react-router-dom"
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"
-import React,{ useRef, useState, useEffect, useCallback } from "react"
-import { Eye, EyeOff, XCircle } from "lucide-react"
-import { az } from "date-fns/locale"
-import DatePicker from "react-datepicker"
-import "react-datepicker/dist/react-datepicker.css"
-import CitySelectionPopup from "../../components/CitySelectionPopup"
-import ImageEditor from "../../components/ImageEditor"
-import axios from "axios"
-import { format, subYears, isValid, parseISO } from "date-fns"
-import Swal from "sweetalert2"
-import backgroundPng from "../../assets/background.png"
-import Footer from "../../components/Footer"
+import { useNavigate, Link } from "react-router-dom";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { Eye, EyeOff, XCircle } from "lucide-react";
+import { az } from "date-fns/locale";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import CitySelectionPopup from "../../components/CitySelectionPopup";
+import ImageEditor from "../../components/ImageEditor";
+import axios from "axios";
+import { format, subYears, isValid, parseISO } from "date-fns";
+import Swal from "sweetalert2";
+import backgroundPng from "../../assets/background.png";
+import Footer from "../../components/Footer";
 
 const cities = [
   "Ağcabədi",
@@ -59,52 +58,58 @@ const cities = [
   "Zaqatala",
   "Zəngilan",
   "Zərdab",
-]
+];
 
 function Register() {
-  const [step, setStep] = useState(1)
-  const navigate = useNavigate()
-  const [formDataErrors, setFormDataErrors] = useState({})
-  const [catagories, setCatagories] = useState([])
-  const [services, setServices] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState(null)
-  const [imageToEdit, setImageToEdit] = useState(null)
-  const [showEditor, setShowEditor] = useState(false)
-  const [otherServiceId, setOtherServiceId] = useState(null)
-  const [draggedImageIndex, setDraggedImageIndex] = useState(null)
+  const [step, setStep] = useState(1);
+  const navigate = useNavigate();
+  const [formDataErrors, setFormDataErrors] = useState({});
+  const [catagories, setCatagories] = useState([]);
+  const [services, setServices] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [imageToEdit, setImageToEdit] = useState(null);
+  const [showEditor, setShowEditor] = useState(false);
+  const [otherServiceId, setOtherServiceId] = useState(null);
+  const [draggedImageIndex, setDraggedImageIndex] = useState(null);
 
   const getCatagories = useCallback(() => {
     axios
       .get("https://api.peshekar.online/api/v1/categories/")
       .then((response) => {
-        setCatagories(response.data)
+        setCatagories(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching categories:", error)
-      })
-  }, [])
+        console.error("Error fetching categories:", error);
+      });
+  }, []);
 
   const getServices = useCallback(() => {
-    if (!selectedCategory) return
+    if (!selectedCategory) return;
     axios
-      .get(`https://api.peshekar.online/api/v1/category/${selectedCategory.id}/services/`)
+      .get(
+        `https://api.peshekar.online/api/v1/category/${selectedCategory.id}/services/`
+      )
       .then((response) => {
-        const fetchedServices = response.data
+        const fetchedServices = response.data;
         const otherService = fetchedServices.find(
-          (item) => item.display_name.toLowerCase().includes("digər") || item.display_name.toLowerCase() === "Digər",
-        )
+          (item) =>
+            item.display_name.toLowerCase().includes("digər") ||
+            item.display_name.toLowerCase() === "Digər"
+        );
         if (otherService) {
-          setOtherServiceId(otherService.id)
-          setServices(fetchedServices.filter((item) => item.id !== otherService.id))
+          setOtherServiceId(otherService.id);
+          setServices(
+            fetchedServices.filter((item) => item.id !== otherService.id)
+          );
         } else {
-          setOtherServiceId(null)
-          setServices(fetchedServices)
+          setOtherServiceId(null);
+          setServices(fetchedServices);
         }
       })
       .catch((error) => {
-        console.error("Error fetching services:", error)
-      })
-  }, [selectedCategory])
+        console.error("Error fetching services:", error);
+      });
+  }, [selectedCategory]);
 
   const [formData, setFormData] = useState({
     first_name: "",
@@ -131,7 +136,7 @@ function Register() {
     work_images: [],
     about: "",
     custom_profession: "",
-  })
+  });
 
   const educationOptions = [
     { id: 1, label: "Tam ali" },
@@ -140,312 +145,342 @@ function Register() {
     { id: 4, label: "Peşə təhsili" },
     { id: 5, label: "Orta ixtisas təhsili" },
     { id: 0, label: "Yoxdur" },
-  ]
+  ];
 
   const [socialMediaLinks, setSocialMediaLinks] = useState({
     Facebook: "",
     Instagram: "",
     TikTok: "",
     LinkedIn: "",
-  })
+  });
 
   const handleSocialMediaLinksValue = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setSocialMediaLinks((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleLanguageChange = (e) => {
-    const value = Number.parseInt(e.target.value)
-    const isChecked = e.target.checked
+    const value = Number.parseInt(e.target.value);
+    const isChecked = e.target.checked;
     setFormData((prevData) => {
-      let updatedLanguages = [...prevData.languages]
+      let updatedLanguages = [...prevData.languages];
       if (isChecked) {
         if (!updatedLanguages.includes(value)) {
-          updatedLanguages.push(value)
+          updatedLanguages.push(value);
         }
       } else {
-        updatedLanguages = updatedLanguages.filter((id) => id !== value)
+        updatedLanguages = updatedLanguages.filter((id) => id !== value);
       }
-      return { ...prevData, languages: updatedLanguages }
-    })
-  }
+      return { ...prevData, languages: updatedLanguages };
+    });
+  };
 
-  const [showPopup, setShowPopup] = useState(false)
+  const [showPopup, setShowPopup] = useState(false);
   const openPopup = () => {
-    setShowPopup(true)
-    document.body.style.overflow = "hidden"
-  }
+    setShowPopup(true);
+    document.body.style.overflow = "hidden";
+  };
   const closePopup = () => {
-    setShowPopup(false)
-    document.body.style.overflowY = "auto"
-  }
+    setShowPopup(false);
+    document.body.style.overflowY = "auto";
+  };
 
   const languageOptions = [
     { id: 1, label: "Azərbaycan" },
     { id: 2, label: "İngilis" },
     { id: 3, label: "Rus" },
     { id: 4, label: "Türk" },
-  ]
+  ];
 
   const handleProfileImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setImageToEdit(file)
-      setShowEditor(true)
+      setImageToEdit(file);
+      setShowEditor(true);
     }
-  }
+  };
 
   const handleImageEditorDelete = () => {
-    setFormData((prev) => ({ ...prev, profile_image: null }))
-    setImageToEdit(null)
-    setShowEditor(false)
-  }
+    setFormData((prev) => ({ ...prev, profile_image: null }));
+    setImageToEdit(null);
+    setShowEditor(false);
+  };
 
   const handleImageEditorSave = (editedFile) => {
-    setFormData((prev) => ({ ...prev, profile_image: editedFile }))
-    setImageToEdit(null)
-    setShowEditor(false)
-  }
+    setFormData((prev) => ({ ...prev, profile_image: editedFile }));
+    setImageToEdit(null);
+    setShowEditor(false);
+  };
 
   const handleImageEditorCancel = () => {
-    setImageToEdit(null)
-    setShowEditor(false)
-  }
+    setImageToEdit(null);
+    setShowEditor(false);
+  };
 
   const handlePortfolioChange = (e) => {
-    const files = Array.from(e.target.files)
+    const files = Array.from(e.target.files);
     setFormData((prev) => ({
       ...prev,
       work_images: [...prev.work_images, ...files].slice(0, 10),
-    }))
-  }
+    }));
+  };
 
   const handleRemoveWorkImage = (indexToRemove) => {
     setFormData((prev) => ({
       ...prev,
-      work_images: prev.work_images.filter((_, index) => index !== indexToRemove),
-    }))
-  }
+      work_images: prev.work_images.filter(
+        (_, index) => index !== indexToRemove
+      ),
+    }));
+  };
 
   const handleDragStart = (e, index) => {
-    setDraggedImageIndex(index)
-    e.dataTransfer.effectAllowed = "move"
-    e.dataTransfer.setData("text/plain", index)
-  }
+    setDraggedImageIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index);
+  };
 
   const handleDragOver = (e) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = "move"
-  }
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
 
   const handleDrop = (e, dropIndex) => {
-    e.preventDefault()
-    const dragIndex = draggedImageIndex
+    e.preventDefault();
+    const dragIndex = draggedImageIndex;
     if (dragIndex === null || dragIndex === dropIndex) {
-      setDraggedImageIndex(null)
-      return
+      setDraggedImageIndex(null);
+      return;
     }
-    const newWorkImages = [...formData.work_images]
-    const [draggedItem] = newWorkImages.splice(dragIndex, 1)
-    newWorkImages.splice(dropIndex, 0, draggedItem)
+    const newWorkImages = [...formData.work_images];
+    const [draggedItem] = newWorkImages.splice(dragIndex, 1);
+    newWorkImages.splice(dropIndex, 0, draggedItem);
     setFormData((prev) => ({
       ...prev,
       work_images: newWorkImages,
-    }))
-    setDraggedImageIndex(null)
-  }
+    }));
+    setDraggedImageIndex(null);
+  };
 
   const isEmpty = (v) => {
-    if (v === null || v === undefined) return true
-    if (typeof v === "string") return v.trim() === ""
-    if (Array.isArray(v)) return v.length === 0
-    return false
-  }
+    if (v === null || v === undefined) return true;
+    if (typeof v === "string") return v.trim() === "";
+    if (Array.isArray(v)) return v.length === 0;
+    return false;
+  };
 
   const regexps = (name) => {
     if (name === "first_name" || name === "last_name") {
-      return /^[AaBbCcÇçDdEeƏəFfGgĞğHhXxIıİiJjKkQqLlMmNnOoÖöPpRrSsŞşTtUuÜüVvYyZz]{2,20}$/
+      return /^[AaBbCcÇçDdEeƏəFfGgĞğHhXxIıİiJjKkQqLlMmNnOoÖöPpRrSsŞşTtUuÜüVvYyZz]{2,20}$/;
     } else if (name === "mobile_number") {
-      return /^(50|51|55|70|77|99|10|60)\d{7}$/
+      return /^(50|51|55|70|77|99|10|60)\d{7}$/;
     } else if (name === "password") {
-      return /^(?=.*[A-ZÇĞİÖŞÜƏ])(?=.*\d)(?=.*[!@#\-_+])[A-Za-zÇçĞğİıÖöŞşÜüƏə\d!@#\-_+]{8,15}$/
+      return /^(?=.*[A-ZÇĞİÖŞÜƏ])(?=.*\d)(?=.*[!@#\-_+])[A-Za-zÇçĞğİıÖöŞşÜüƏə\d!@#\-_+]{8,15}$/;
     } else if (name === "custom_profession") {
-      return /^[A-Za-zÇçƏəĞğİiÖöŞşÜü ]{2,40}$/
+      return /^[A-Za-zÇçƏəĞğİiÖöŞşÜü ]{2,40}$/;
     }
-    return null
-  }
+    return null;
+  };
 
   const getErrorMessage = (name, value, extraData = {}) => {
     switch (name) {
       case "first_name":
       case "last_name":
-        if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin."
+        if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin.";
         if (!regexps(name).test(value) || /[А-Яа-яЁё]/.test(value))
-          return "Yalnız Azərbaycan hərfləri ilə yazılmalıdır."
-        return ""
+          return "Yalnız Azərbaycan hərfləri ilə yazılmalıdır.";
+        return "";
       case "birth_date":
-        if (isEmpty(value)) return "Zəhmət olmasa, doğum tarixini daxil edin."
-        const birthDate = value instanceof Date ? value : parseISO(value)
-        if (!isValid(birthDate)) return "Doğum tarixini düzgün daxil edin."
-        if (birthDate > subYears(new Date(), 15)) return "Qeydiyyatdan keçmək üçün minimum yaş 15 olmalıdır."
-        return ""
+        if (isEmpty(value)) return "Zəhmət olmasa, doğum tarixini daxil edin.";
+        const birthDate = value instanceof Date ? value : parseISO(value);
+        if (!isValid(birthDate)) return "Doğum tarixini düzgün daxil edin.";
+        if (birthDate > subYears(new Date(), 15))
+          return "Qeydiyyatdan keçmək üçün minimum yaş 15 olmalıdır.";
+        return "";
       case "mobile_number":
-        if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin."
-        if (!regexps(name).test(value)) return "Mobil nömrə düzgün daxil edilməyib. 50 123 45 67 formatında daxil edin."
-        return ""
-      case "password":
-        if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin."
+        if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin.";
         if (!regexps(name).test(value))
-          return "Şifrəniz ən azı 8 simvoldan ibarət olmalı, özündə minimum bir böyük hərf, rəqəm və xüsusi simvol (məsələn: !, @, #, -, _, +) ehtiva etməlidir."
-        return ""
+          return "Mobil nömrə düzgün daxil edilməyib. 50 123 45 67 formatında daxil edin.";
+        return "";
+      case "password":
+        if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin.";
+        if (!regexps(name).test(value))
+          return "Şifrəniz ən azı 8 simvoldan ibarət olmalı, özündə minimum bir böyük hərf, rəqəm və xüsusi simvol (məsələn: !, @, #, -, _, +) ehtiva etməlidir.";
+        return "";
       case "password2":
-        if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin."
-        if (formData.password !== value) return "Şifrələr uyğun deyil."
-        return ""
+        if (isEmpty(value)) return "Zəhmət olmasa, məlumatları daxil edin.";
+        if (formData.password !== value) return "Şifrələr uyğun deyil.";
+        return "";
       case "gender":
-        if (isEmpty(value)) return "Zəhmət olmasa, seçim edin."
-        return ""
+        if (isEmpty(value)) return "Zəhmət olmasa, seçim edin.";
+        return "";
       case "profession_area":
-        if (isEmpty(value)) return "Zəhmət olmasa, peşə sahəsi seçin."
-        return ""
+        if (isEmpty(value)) return "Zəhmət olmasa, peşə sahəsi seçin.";
+        return "";
       case "profession_speciality":
-        if (Number(value) === Number(otherServiceId)) return ""
-        if (isEmpty(value)) return "Zəhmət olmasa, peşə ixtisası seçin."
-        return ""
+        if (Number(value) === Number(otherServiceId)) return "";
+        if (isEmpty(value)) return "Zəhmət olmasa, peşə ixtisası seçin.";
+        return "";
       case "custom_profession":
-        if (isEmpty(value)) return "Zəhmət olmasa, ixtisası daxil edin."
-        if (!regexps(name).test(value)) return "Yalnız Azərbaycan hərfləri ilə qeyd edilməlidir"
-        return ""
+        if (isEmpty(value)) return "Zəhmət olmasa, ixtisası daxil edin.";
+        if (!regexps(name).test(value))
+          return "Yalnız Azərbaycan hərfləri ilə qeyd edilməlidir";
+        return "";
       case "experience_years":
-        if (isEmpty(value)) return "Zəhmət olmasa, iş təcrübəsini daxil edin."
-        return ""
+        if (isEmpty(value)) return "Zəhmət olmasa, iş təcrübəsini daxil edin.";
+        return "";
       case "cities":
-        if (isEmpty(value)) return "Fəaliyyət ərazisi seçilməlidir."
-        return ""
+        if (isEmpty(value)) return "Fəaliyyət ərazisi seçilməlidir.";
+        return "";
       case "education":
-        if (isEmpty(value)) return "Zəhmət olmasa, təhsil səviyyəsini seçin."
-        return ""
+        if (isEmpty(value)) return "Zəhmət olmasa, təhsil səviyyəsini seçin.";
+        return "";
       case "educationField":
-        if (isEmpty(value)) return "Zəhmət olmasa, təhsil ixtisasını daxil edin."
-        return ""
+        if (isEmpty(value))
+          return "Zəhmət olmasa, təhsil ixtisasını daxil edin.";
+        return "";
       case "about":
-        if (isEmpty(value)) return "Haqqınızda məlumat daxil edin"
-        return ""
+        if (isEmpty(value)) return "Haqqınızda məlumat daxil edin";
+        return "";
       case "profile_image":
-        if (isEmpty(value)) return "Profil şəkli əlavə olunmalıdır"
-        return ""
+        if (isEmpty(value)) return "Profil şəkli əlavə olunmalıdır";
+        return "";
       case "languages":
-        if (isEmpty(value)) return "Zəhmət olmasa, dil biliklərinizi seçin."
-        return ""
+        if (isEmpty(value)) return "Zəhmət olmasa, dil biliklərinizi seçin.";
+        return "";
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
   const validateCurrentStep = () => {
-    const errors = {}
+    const errors = {};
     if (step === 1) {
-      errors.first_name = getErrorMessage("first_name", formData.first_name)
-      errors.last_name = getErrorMessage("last_name", formData.last_name)
-      errors.birth_date = getErrorMessage("birth_date", formData.birth_date)
-      errors.mobile_number = getErrorMessage("mobile_number", formData.mobile_number)
-      errors.password = getErrorMessage("password", formData.password)
-      errors.password2 = getErrorMessage("password2", formData.password2)
-      errors.gender = getErrorMessage("gender", formData.gender)
+      errors.first_name = getErrorMessage("first_name", formData.first_name);
+      errors.last_name = getErrorMessage("last_name", formData.last_name);
+      errors.birth_date = getErrorMessage("birth_date", formData.birth_date);
+      errors.mobile_number = getErrorMessage(
+        "mobile_number",
+        formData.mobile_number
+      );
+      errors.password = getErrorMessage("password", formData.password);
+      errors.password2 = getErrorMessage("password2", formData.password2);
+      errors.gender = getErrorMessage("gender", formData.gender);
     } else if (step === 2) {
-      errors.profession_area = getErrorMessage("profession_area", formData.profession_area)
+      errors.profession_area = getErrorMessage(
+        "profession_area",
+        formData.profession_area
+      );
       if (formData.profession_speciality !== otherServiceId) {
-        errors.profession_speciality = getErrorMessage("profession_speciality", formData.profession_speciality, {
-          otherServiceId,
-        })
+        errors.profession_speciality = getErrorMessage(
+          "profession_speciality",
+          formData.profession_speciality,
+          {
+            otherServiceId,
+          }
+        );
       }
       if (formData.profession_speciality === otherServiceId) {
-        errors.custom_profession = getErrorMessage("custom_profession", formData.custom_profession)
+        errors.custom_profession = getErrorMessage(
+          "custom_profession",
+          formData.custom_profession
+        );
       } else if (!formData.profession_speciality) {
-        errors.profession_speciality = "Zəhmət olmasa, peşə ixtisası seçin."
+        errors.profession_speciality = "Zəhmət olmasa, peşə ixtisası seçin.";
       }
-      errors.experience_years = getErrorMessage("experience_years", formData.experience_years)
-      errors.cities = getErrorMessage("cities", formData.cities)
+      errors.experience_years = getErrorMessage(
+        "experience_years",
+        formData.experience_years
+      );
+      errors.cities = getErrorMessage("cities", formData.cities);
     } else if (step === 3) {
-      errors.education = getErrorMessage("education", formData.education)
+      errors.education = getErrorMessage("education", formData.education);
       if (formData.education !== "" && formData.education !== 0) {
-        errors.educationField = getErrorMessage("educationField", formData.educationField)
+        errors.educationField = getErrorMessage(
+          "educationField",
+          formData.educationField
+        );
       }
-      errors.about = getErrorMessage("about", formData.about)
-      errors.profile_image = getErrorMessage("profile_image", formData.profile_image)
-      errors.languages = getErrorMessage("languages", formData.languages)
+      errors.about = getErrorMessage("about", formData.about);
+      errors.profile_image = getErrorMessage(
+        "profile_image",
+        formData.profile_image
+      );
+      errors.languages = getErrorMessage("languages", formData.languages);
     }
-    const filteredErrors = Object.fromEntries(Object.entries(errors).filter(([, value]) => value !== ""))
-    setFormDataErrors(filteredErrors)
-    return Object.keys(filteredErrors).length === 0
-  }
+    const filteredErrors = Object.fromEntries(
+      Object.entries(errors).filter(([, value]) => value !== "")
+    );
+    setFormDataErrors(filteredErrors);
+    return Object.keys(filteredErrors).length === 0;
+  };
 
   const handleChange = (e) => {
-    const { name, value, type, multiple, options } = e.target
+    const { name, value, type, multiple, options } = e.target;
     if (type === "password") {
-      check_password_strength(value)
+      check_password_strength(value);
     }
     if (name === "profession_speciality") {
-      const numericValue = value === "other" ? otherServiceId : Number(value)
+      const numericValue = value === "other" ? otherServiceId : Number(value);
       setFormData((prev) => ({
         ...prev,
         [name]: numericValue,
         custom_profession: value === "other" ? prev.custom_profession : "",
-      }))
+      }));
       if (value === "other") {
         setFormDataErrors((prev) => {
-          const newErrors = { ...prev }
-          delete newErrors.profession_speciality
-          return newErrors
-        })
+          const newErrors = { ...prev };
+          delete newErrors.profession_speciality;
+          return newErrors;
+        });
       }
     } else if (multiple) {
       const values = Array.from(options)
         .filter((opt) => opt.selected)
-        .map((opt) => Number.parseInt(opt.value))
-      setFormData((prev) => ({ ...prev, [name]: values }))
+        .map((opt) => Number.parseInt(opt.value));
+      setFormData((prev) => ({ ...prev, [name]: values }));
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: type === "number" ? Number.parseInt(value) : value,
-      }))
+      }));
     }
     if (formDataErrors[name]) {
-      const errorMessage = getErrorMessage(name, value)
+      const errorMessage = getErrorMessage(name, value);
       if (!errorMessage) {
         setFormDataErrors((prev) => {
-          const newErrors = { ...prev }
-          delete newErrors[name]
-          return newErrors
-        })
+          const newErrors = { ...prev };
+          delete newErrors[name];
+          return newErrors;
+        });
       }
     }
     if (name === "profession_area") {
-      const selected = catagories.find((item) => item.id == value)
-      setSelectedCategory(selected || null)
+      const selected = catagories.find((item) => item.id == value);
+      setSelectedCategory(selected || null);
       setFormData((prev) => ({
         ...prev,
         profession_speciality: "",
         custom_profession: "",
-      }))
+      }));
     }
-  }
+  };
 
   const handleBlurValidation = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormDataErrors((prev) => ({
       ...prev,
       [name]: getErrorMessage(name, value, { otherServiceId }),
-    }))
-  }
+    }));
+  };
 
   const handleNext = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!validateCurrentStep()) {
-      return
+      return;
     }
     if (step === 1) {
       if (!formData.mobile_number || formData.mobile_number.length !== 9) {
@@ -455,84 +490,107 @@ function Register() {
           text: "Zəhmət olmasa, 9 rəqəmdən ibarət mobil nömrə daxil edin.",
           confirmButtonText: "Başa düşdüm",
           confirmButtonColor: "#1A4862",
-        })
-        return
+        });
+        return;
       }
-      const fullNumber = `${formData.mobile_number}`
+      const fullNumber = `${formData.mobile_number}`;
       try {
-        const res = await fetch("https://api.peshekar.online/api/v1/check-phone/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mobile_number: fullNumber }),
-        })
-        const data = await res.json()
+        const res = await fetch(
+          "https://api.peshekar.online/api/v1/check-phone/",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mobile_number: fullNumber }),
+          }
+        );
+        const data = await res.json();
         if (res.status === 200 && data?.is_mobile_number) {
-          setStep((prev) => prev + 1)
+          setStep((prev) => prev + 1);
         } else {
           Swal.fire({
             icon: "warning",
             title: "Bu nömrə istifadə olunur.",
-            text: data.mobile_number ? data.mobile_number[0] : "Zəhmət olmasa, başqa nömrə daxil edin.",
+            text: data.mobile_number
+              ? data.mobile_number[0]
+              : "Zəhmət olmasa, başqa nömrə daxil edin.",
             confirmButtonText: "Başa düşdüm",
             confirmButtonColor: "#1A4862",
-          })
+          });
         }
       } catch (error) {
-        console.error("Xəta:", error)
+        console.error("Xəta:", error);
         Swal.fire({
           icon: "error",
           title: "Serverə qoşulmaq mümkün olmadı",
           text: "İnternet bağlantınızı yoxlayın və yenidən cəhd edin.",
           confirmButtonText: "Başa düşdüm",
           confirmButtonColor: "#d33",
-        })
+        });
       }
     } else {
-      setStep((prev) => prev + 1)
+      setStep((prev) => prev + 1);
     }
-  }
+  };
 
   const handleFinalSubmit = async () => {
     if (!validateCurrentStep()) {
-      return
+      return;
     }
-    const formDataToSend = new FormData()
-    formDataToSend.append("first_name", formData.first_name)
-    formDataToSend.append("last_name", formData.last_name)
-    formDataToSend.append("birth_date", format(formData.birth_date, "yyyy/MM/dd"))
-    formDataToSend.append("mobile_number", formData.mobile_number)
-    formDataToSend.append("password", formData.password)
-    formDataToSend.append("password2", formData.password2)
-    formDataToSend.append("gender", formData.gender)
-    formDataToSend.append("profession_area", formData.profession_area)
+    const formDataToSend = new FormData();
+    formDataToSend.append("first_name", formData.first_name);
+    formDataToSend.append("last_name", formData.last_name);
+    formDataToSend.append(
+      "birth_date",
+      format(formData.birth_date, "yyyy/MM/dd")
+    );
+    formDataToSend.append("mobile_number", formData.mobile_number);
+    formDataToSend.append("password", formData.password);
+    formDataToSend.append("password2", formData.password2);
+    formDataToSend.append("gender", formData.gender);
+    formDataToSend.append("profession_area", formData.profession_area);
     if (formData.profession_speciality === otherServiceId) {
-      formDataToSend.append("profession_speciality", formData.profession_speciality)
-      formDataToSend.append("custom_profession", formData.custom_profession)
+      formDataToSend.append(
+        "profession_speciality",
+        formData.profession_speciality
+      );
+      formDataToSend.append("custom_profession", formData.custom_profession);
     } else {
-      formDataToSend.append("profession_speciality", formData.profession_speciality)
-      formDataToSend.append("custom_profession", "")
+      formDataToSend.append(
+        "profession_speciality",
+        formData.profession_speciality
+      );
+      formDataToSend.append("custom_profession", "");
     }
-    formDataToSend.append("experience_years", formData.experience_years)
-    formData.cities.forEach((cityId) => formDataToSend.append("cities", cityId))
-    formData.languages.forEach((langId) => formDataToSend.append("languages", langId))
-    formDataToSend.append("education", formData.education)
+    formDataToSend.append("experience_years", formData.experience_years);
+    formData.cities.forEach((cityId) =>
+      formDataToSend.append("cities", cityId)
+    );
+    formData.languages.forEach((langId) =>
+      formDataToSend.append("languages", langId)
+    );
+    formDataToSend.append("education", formData.education);
     if (formData.education !== 6) {
-      formDataToSend.append("education_speciality", formData.educationField)
+      formDataToSend.append("education_speciality", formData.educationField);
     } else {
-      formDataToSend.append("education_speciality", "")
+      formDataToSend.append("education_speciality", "");
     }
-    formDataToSend.append("note", formData.about)
-    formDataToSend.append("facebook", socialMediaLinks.Facebook)
-    formDataToSend.append("instagram", socialMediaLinks.Instagram)
-    formDataToSend.append("tiktok", socialMediaLinks.TikTok)
-    formDataToSend.append("linkedin", socialMediaLinks.LinkedIn)
+    formDataToSend.append("note", formData.about);
+    formDataToSend.append("facebook", socialMediaLinks.Facebook);
+    formDataToSend.append("instagram", socialMediaLinks.Instagram);
+    formDataToSend.append("tiktok", socialMediaLinks.TikTok);
+    formDataToSend.append("linkedin", socialMediaLinks.LinkedIn);
     if (formData.profile_image) {
-      formDataToSend.append("profile_image", formData.profile_image)
+      formDataToSend.append("profile_image", formData.profile_image);
     }
-    formData.work_images.forEach((file) => formDataToSend.append("work_images", file))
+    formData.work_images.forEach((file) =>
+      formDataToSend.append("work_images", file)
+    );
 
     try {
-      await axios.post("https://api.peshekar.online/api/v1/register/", formDataToSend)
+      await axios.post(
+        "https://api.peshekar.online/api/v1/register/",
+        formDataToSend
+      );
       Swal.fire({
         title: "Qeydiyyat uğurludur!",
         text: "Davam etmək üçün 'Login' düyməsinə klikləyin.",
@@ -545,109 +603,124 @@ function Register() {
         },
       }).then((result) => {
         if (result.isConfirmed) {
-          navigate("/login")
+          navigate("/login");
         }
-      })
+      });
     } catch (error) {
-      console.error("Error posting data:", error)
+      console.error("Error posting data:", error);
       if (error.response) {
-        console.error("Error response data:", JSON.stringify(error.response.data, null, 2))
-        console.error("Error response status:", error.response.status)
-        console.error("Error response headers:", error.response.headers)
+        console.error(
+          "Error response data:",
+          JSON.stringify(error.response.data, null, 2)
+        );
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
       }
       Swal.fire({
         title: "Xəta baş verdi!",
-        text: error?.response?.data?.detail || "Zəhmət olmasa, yenidən cəhd edin.",
+        text:
+          error?.response?.data?.detail || "Zəhmət olmasa, yenidən cəhd edin.",
         icon: "error",
         confirmButtonText: "Bağla",
         buttonsStyling: false,
         customClass: {
           confirmButton: "bg-red-600 px-6 py-2 rounded text-white",
         },
-      })
+      });
     }
-  }
+  };
 
-  const fileInputRef = useRef(null)
-  const fileInputRef2 = useRef(null)
-  const handleUploadClick = () => fileInputRef.current.click()
-  const handleUploadClick2 = () => fileInputRef2.current.click()
+  const fileInputRef = useRef(null);
+  const fileInputRef2 = useRef(null);
+  const handleUploadClick = () => fileInputRef.current.click();
+  const handleUploadClick2 = () => fileInputRef2.current.click();
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showPassword2, setShowPassword2] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({
     isUpperCase: false,
     isLowerCase: false,
     isSymbol: false,
     isNumber: false,
     isLengthEight: false,
-  })
+  });
 
-  const parentRef = useRef(null)
-  const [width, setWidth] = useState(0)
+  const parentRef = useRef(null);
+  const [width, setWidth] = useState(0);
 
   useEffect(() => {
     if (parentRef.current) {
-      setWidth(parentRef.current.offsetWidth)
+      setWidth(parentRef.current.offsetWidth);
     }
-    getCatagories()
-  }, [getCatagories])
+    getCatagories();
+  }, [getCatagories]);
 
   useEffect(() => {
     if (selectedCategory) {
-      getServices()
+      getServices();
     }
-  }, [selectedCategory, getServices])
+  }, [selectedCategory, getServices]);
 
-  const color = ["", "bg-red-500", "bg-yellow-500", "bg-amber-500", "bg-lime-500", "bg-green-500"]
+  const color = [
+    "",
+    "bg-red-500",
+    "bg-yellow-500",
+    "bg-amber-500",
+    "bg-lime-500",
+    "bg-green-500",
+  ];
 
   const check_password_strength = (value) => {
-    const uppercaseRegexp = /[A-ZÇĞİÖŞÜƏ]/
-    const lowercaseRegexp = /[a-zçğıöşüə]/
-    const symbolRegexp = /[!@#$%^&*)(+=._\-{}[\]:;"'<>,?/\\|~`]/
-    const numberRegexp = /\d/
+    const uppercaseRegexp = /[A-ZÇĞİÖŞÜƏ]/;
+    const lowercaseRegexp = /[a-zçğıöşüə]/;
+    const symbolRegexp = /[!@#$%^&*)(+=._\-{}[\]:;"'<>,?/\\|~`]/;
+    const numberRegexp = /\d/;
     setPasswordStrength({
       isUpperCase: uppercaseRegexp.test(value),
       isLowerCase: lowercaseRegexp.test(value),
       isSymbol: symbolRegexp.test(value),
       isNumber: numberRegexp.test(value),
       isLengthEight: value.length >= 8,
-    })
-  }
+    });
+  };
 
   const [citiesForShow, setCitiesForShow] = useState({
     cities: [],
     districts: [],
-  })
+  });
 
   const handleChildData = (dataFromChild) => {
     const selectedAreas = [
       ...(dataFromChild.selectedCitiesForShow || []),
       ...(dataFromChild.selectedDistrictsForShow || []),
-    ].map((item) => item.display_name || item.name)
+    ].map((item) => item.display_name || item.name);
     setFormData((prev) => ({
       ...prev,
       cities: [
         ...(dataFromChild.selectedCitiesForShow || []).map((city) => city.id),
-        ...(dataFromChild.selectedDistrictsForShow || []).map((district) => district.id),
+        ...(dataFromChild.selectedDistrictsForShow || []).map(
+          (district) => district.id
+        ),
       ],
-    }))
+    }));
     setCitiesForShow({
       cities: [...(dataFromChild.selectedCitiesForShow || [])],
       districts: [...(dataFromChild.selectedDistrictsForShow || [])],
       displayText: selectedAreas.join(", "),
-    })
-    closePopup()
-  }
+    });
+    closePopup();
+  };
 
   const handleClick = () => {
-    navigate("/login")
-  }
+    navigate("/login");
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="bg-[rgba(26,72,98,1)] h-[100px] sticky top-0 left-0 z-50 flex justify-between px-[20px] py-[20px]">
-        <h2 className="text-white font-semibold text-[30px]"></h2>
+      <div className="bg-[rgba(26,72,98,1)] h-[100px] sticky top-0 left-0 z-50 flex justify-between px-[20px] py-[20px] items-center">
+        <Link to="/" className="text-white text-lg font-bold">
+          <img src="./ag-logo.png" alt="logo" className="h-15 w-auto ml-10"/>
+        </Link>
         <p className="text-white cursor-pointer" onClick={handleClick}>
           Hesabınız var? Daxil olun
         </p>
@@ -656,7 +729,9 @@ function Register() {
         <h1 className="text-2xl md:text-3xl font-bold text-[#1A4852] mb-2 p-4 text-center">
           Peşə Sahibləri Platformasına <br /> Xoş Gəlmisiniz!
         </h1>
-        <p className="text-[#6C757D]">Peşəkar xidmətlərinizi paylaşmaq üçün qeydiyyatdan keçin.</p>
+        <p className="text-[#6C757D]">
+          Peşəkar xidmətlərinizi paylaşmaq üçün qeydiyyatdan keçin.
+        </p>
       </div>
       <main
         className="flex-grow relative flex justify-center items-start py-[40px] bg-cover bg-center bg-fixed bg-no-repeat"
@@ -670,12 +745,20 @@ function Register() {
                 1
               </div>
               <div className="w-[40px] h-[2px] bg-[rgba(195,200,209,1)] flex mt-3" />
-              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[rgba(195,200,209,1)] ">2</div>
+              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[rgba(195,200,209,1)] ">
+                2
+              </div>
               <div className="w-[40px] h-[2px] bg-[rgba(195,200,209,1)] flex mt-3" />
-              <div className="w-8 h-8 flex items-center justify-center rounded-full  bg-[rgba(195,200,209,1)] ">3</div>
+              <div className="w-8 h-8 flex items-center justify-center rounded-full  bg-[rgba(195,200,209,1)] ">
+                3
+              </div>
             </div>
-            <p className="text-center text-cyan-900 font-semibold pt-4">Addım 1/3 </p>
-            <h2 className="text-cyan-900 font-semibold leading-[1.5] text-[25px] mt-5">Şəxsi məlumatlar</h2>
+            <p className="text-center text-cyan-900 font-semibold pt-4">
+              Addım 1/3{" "}
+            </p>
+            <h2 className="text-cyan-900 font-semibold leading-[1.5] text-[25px] mt-5">
+              Şəxsi məlumatlar
+            </h2>
             <div className="py-[15px]">
               <label className="text-cyan-900 leading-[1.5] text-sm font-semibold">
                 Ad <span className="text-red-500">*</span>
@@ -688,16 +771,28 @@ function Register() {
                 onChange={handleChange}
                 onBlur={handleBlurValidation}
                 onKeyDown={(e) => {
-                  const isControlKey = ["Backspace", "Tab", "ArrowLeft", "ArrowRight", "Delete"].includes(e.key)
-                  const isLetter = /^[a-zA-ZəöüçğışƏÖÜÇĞŞİI ]$/.test(e.key)
-                  if (!isLetter && !isControlKey) e.preventDefault()
+                  const isControlKey = [
+                    "Backspace",
+                    "Tab",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Delete",
+                  ].includes(e.key);
+                  const isLetter = /^[a-zA-ZəöüçğışƏÖÜÇĞŞİI ]$/.test(e.key);
+                  if (!isLetter && !isControlKey) e.preventDefault();
                 }}
                 placeholder="Adınızı daxil edin"
                 className={`${
-                  formDataErrors.first_name ? "border-red-600" : "border-gray-300"
+                  formDataErrors.first_name
+                    ? "border-red-600"
+                    : "border-gray-300"
                 } outline-gray-200 w-full mt-1 p-2 text-[16px] border bg-white rounded-md`}
               />
-              {formDataErrors.first_name && <p className="text-red-500 text-sm mt-1">{formDataErrors.first_name}</p>}
+              {formDataErrors.first_name && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.first_name}
+                </p>
+              )}
             </div>
             <div className="py-[10px]">
               <label className="text-cyan-900 leading-[1.5] text-sm font-semibold">
@@ -711,16 +806,30 @@ function Register() {
                 onChange={handleChange}
                 onBlur={handleBlurValidation}
                 onKeyDown={(e) => {
-                  const isControlKey = ["Backspace", "Tab", "ArrowLeft", "ArrowRight", "Delete"].includes(e.key)
-                  const isLetter = /^[a-zA-ZəöüçğışƏÖÜÇĞŞİIА-Яа-яЁё]$/.test(e.key)
-                  if (!isLetter && !isControlKey) e.preventDefault()
+                  const isControlKey = [
+                    "Backspace",
+                    "Tab",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Delete",
+                  ].includes(e.key);
+                  const isLetter = /^[a-zA-ZəöüçğışƏÖÜÇĞŞİIА-Яа-яЁё]$/.test(
+                    e.key
+                  );
+                  if (!isLetter && !isControlKey) e.preventDefault();
                 }}
                 placeholder="Soyadınızı daxil edin"
                 className={`w-full mt-1 p-2 text-[16px] bg-white rounded-md outline-gray-200 ${
-                  formDataErrors.last_name ? "border-red-600" : "border-gray-300"
+                  formDataErrors.last_name
+                    ? "border-red-600"
+                    : "border-gray-300"
                 } border`}
               />
-              {formDataErrors.last_name && <p className="text-red-500 text-sm mt-1">{formDataErrors.last_name}</p>}
+              {formDataErrors.last_name && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.last_name}
+                </p>
+              )}
             </div>
             <div className="py-[10px]">
               <label className="text-cyan-900 leading-[1.5] text-sm font-semibold">
@@ -729,11 +838,11 @@ function Register() {
               <DatePicker
                 selected={formData.birth_date}
                 onChange={(date) => {
-                  setFormData((prev) => ({ ...prev, birth_date: date }))
+                  setFormData((prev) => ({ ...prev, birth_date: date }));
                   setFormDataErrors((prev) => ({
                     ...prev,
                     birth_date: getErrorMessage("birth_date", date),
-                  }))
+                  }));
                 }}
                 onBlur={handleBlurValidation}
                 dateFormat="yyyy/MM/dd"
@@ -745,10 +854,16 @@ function Register() {
                 dropdownMode="select"
                 calendarStartDay={1}
                 className={`${
-                  formDataErrors.birth_date ? "border-red-600" : "border-gray-300"
+                  formDataErrors.birth_date
+                    ? "border-red-600"
+                    : "border-gray-300"
                 } outline-gray-200 w-full mt-1 p-2 text-[16px] border bg-white rounded-md text-gray-700`}
               />
-              {formDataErrors.birth_date && <p className="text-red-500 text-sm mt-1">{formDataErrors.birth_date}</p>}
+              {formDataErrors.birth_date && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.birth_date}
+                </p>
+              )}
             </div>
             <div className="py-[10px]">
               <label className="text-cyan-900 leading-[1.5] text-sm font-semibold">
@@ -756,33 +871,49 @@ function Register() {
               </label>
               <div className="mt-1">
                 <div className="flex">
-                  <span className="bg-white px-4 py-2 border border-gray-300 border-r-0 rounded-l-md">+994</span>
+                  <span className="bg-white px-4 py-2 border border-gray-300 border-r-0 rounded-l-md">
+                    +994
+                  </span>
                   <input
                     type="tel"
                     name="mobile_number"
                     value={formData.mobile_number}
                     onChange={(e) => {
-                      const onlyNumbers = e.target.value.replace(/\D/g, "").slice(0, 9)
+                      const onlyNumbers = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 9);
                       setFormData((prev) => ({
                         ...prev,
                         mobile_number: onlyNumbers,
-                      }))
+                      }));
                     }}
                     onKeyDown={(e) => {
-                      const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab"]
-                      if (!/[0-9]/.test(e.key) && !allowedKeys.includes(e.key)) {
-                        e.preventDefault()
+                      const allowedKeys = [
+                        "Backspace",
+                        "ArrowLeft",
+                        "ArrowRight",
+                        "Tab",
+                      ];
+                      if (
+                        !/[0-9]/.test(e.key) &&
+                        !allowedKeys.includes(e.key)
+                      ) {
+                        e.preventDefault();
                       }
                     }}
                     onBlur={handleBlurValidation}
                     placeholder="501234567"
                     className={`${
-                      formDataErrors.mobile_number ? "border-red-600" : "border-gray-300"
+                      formDataErrors.mobile_number
+                        ? "border-red-600"
+                        : "border-gray-300"
                     } outline-gray-200 w-full p-2 text-[16px] border bg-white rounded-r-md`}
                   />
                 </div>
                 {formDataErrors.mobile_number && (
-                  <p className="text-red-500 text-sm mt-1">{formDataErrors.mobile_number}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formDataErrors.mobile_number}
+                  </p>
                 )}
               </div>
             </div>
@@ -800,7 +931,9 @@ function Register() {
                   onBlur={handleBlurValidation}
                   placeholder="Şifrənizi daxil edin"
                   className={`${
-                    formDataErrors.password ? "border-red-600" : "border-gray-300"
+                    formDataErrors.password
+                      ? "border-red-600"
+                      : "border-gray-300"
                   } outline-gray-200 w-full mt-1 p-2 text-[16px] border bg-white rounded-md pr-12`}
                 />
                 <button
@@ -815,13 +948,21 @@ function Register() {
                 <div
                   ref={parentRef}
                   className={`block mt-[5px] h-[6px] rounded-2xl ${
-                    color[Object.values(passwordStrength).filter((x) => x === true).length]
+                    color[
+                      Object.values(passwordStrength).filter((x) => x === true)
+                        .length
+                    ]
                   }`}
                 ></div>
               </div>
-              <p className={`mt-1 text-sm ${formDataErrors.password ? "text-red-500" : "text-gray-500"}`}>
-                Şifrəniz ən azı 8 simvoldan ibarət olmalı, özündə minimum bir böyük hərf, rəqəm və xüsusi simvol
-                (məsələn: !, @, #, -, _, +) ehtiva etməlidir.
+              <p
+                className={`mt-1 text-sm ${
+                  formDataErrors.password ? "text-red-500" : "text-gray-500"
+                }`}
+              >
+                Şifrəniz ən azı 8 simvoldan ibarət olmalı, özündə minimum bir
+                böyük hərf, rəqəm və xüsusi simvol (məsələn: !, @, #, -, _, +)
+                ehtiva etməlidir.
               </p>
             </div>
             <div className="py-[10px]">
@@ -838,7 +979,9 @@ function Register() {
                   onBlur={handleBlurValidation}
                   placeholder="Şifrənizi təkrar daxil edin"
                   className={`${
-                    formDataErrors.password2 ? "border-red-600" : "border-gray-300"
+                    formDataErrors.password2
+                      ? "border-red-600"
+                      : "border-gray-300"
                   } outline-gray-200 w-full mt-1 p-2 text-[16px] border bg-white rounded-md pr-12`}
                 />
                 <button
@@ -849,7 +992,11 @@ function Register() {
                   {showPassword2 ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              {formDataErrors.password2 && <p className="text-red-500 text-sm mt-1">{formDataErrors.password2}</p>}
+              {formDataErrors.password2 && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.password2}
+                </p>
+              )}
             </div>
             <div className="py-[10px]">
               <label className="text-cyan-900 leading-[1.5] text-sm font-semibold">
@@ -879,18 +1026,26 @@ function Register() {
                   Qadın
                 </label>
               </div>
-              {formDataErrors.gender && <p className="text-red-500 text-sm mt-1">{formDataErrors.gender}</p>}
+              {formDataErrors.gender && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.gender}
+                </p>
+              )}
             </div>
             <button
               type="submit"
               className=" flex justify-center items-center text-sm bg-cyan-900 text-white py-2 rounded-md mt-4 w-full"
               onClick={handleNext}
             >
-              Növbəti <IoIosArrowForward className="w-[20px] h-[20px] pt-[2px]" />
+              Növbəti{" "}
+              <IoIosArrowForward className="w-[20px] h-[20px] pt-[2px]" />
             </button>
             <p className="text-sm mt-6 text-gray-600 flex items-center justify-center gap-[3px]">
               Hesabınız var?{" "}
-              <a href="/login" className="text-[rgba(49,135,184,1)] hover:underline">
+              <a
+                href="/login"
+                className="text-[rgba(49,135,184,1)] hover:underline"
+              >
                 Daxil olun
               </a>
             </p>
@@ -899,16 +1054,22 @@ function Register() {
         {step === 2 && (
           <div className="relative z-10 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg w-[90%] max-w-md ">
             <div className="flex justify-evenly ">
-              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[rgba(195,200,209,1)]">1</div>
+              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[rgba(195,200,209,1)]">
+                1
+              </div>
               <div className="w-[40px] h-[2px] bg-[rgba(26,72,98,1)] flex justify-between items-center mt-3" />
               <div className="w-8 h-8 flex items-center justify-center rounded-full  bg-[rgba(26,72,98,1)]  text-white ">
                 2
               </div>
               <div className="w-[40px] h-[2px] bg-[rgba(195,200,209,1)] flex mt-3" />
-              <div className="w-8 h-8 flex items-center justify-center rounded-full  bg-[rgba(195,200,209,1)] ">3</div>
+              <div className="w-8 h-8 flex items-center justify-center rounded-full  bg-[rgba(195,200,209,1)] ">
+                3
+              </div>
             </div>
             <p className="text-center text-cyan-900 pt-4 pb-5">Addım 2/3 </p>
-            <h3 className="text-xl font-bold text-[#1A4852] mb-4 ">Peşə məlumatları</h3>
+            <h3 className="text-xl font-bold text-[#1A4852] mb-4 ">
+              Peşə məlumatları
+            </h3>
             <div className="mb-4">
               <label className="block text-sm text-cyan-900 font-medium mb-1">
                 Peşə sahəsi <span className="text-red-500">*</span>
@@ -918,7 +1079,9 @@ function Register() {
                 onChange={handleChange}
                 onBlur={handleBlurValidation}
                 className={`${
-                  formDataErrors.profession_area ? "border-red-600" : "border-gray-300"
+                  formDataErrors.profession_area
+                    ? "border-red-600"
+                    : "border-gray-300"
                 } outline-gray-200 w-full mt-1 p-2 text-[16px] text-cyan-900 border bg-[rgba(195,200,209,1)] rounded-md`}
                 value={formData.profession_area}
               >
@@ -930,7 +1093,9 @@ function Register() {
                 ))}
               </select>
               {formDataErrors.profession_area && (
-                <p className="text-red-500 text-sm mt-1">{formDataErrors.profession_area}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.profession_area}
+                </p>
               )}
             </div>
             <div className="mb-4">
@@ -943,7 +1108,9 @@ function Register() {
                 onChange={handleChange}
                 onBlur={handleBlurValidation}
                 className={`${
-                  formDataErrors.profession_speciality ? "border-red-600" : "border-gray-300"
+                  formDataErrors.profession_speciality
+                    ? "border-red-600"
+                    : "border-gray-300"
                 } outline-gray-200 w-full mt-1 p-2 text-[16px] text-cyan-900 border bg-[rgba(195,200,209,1)] rounded-md`}
               >
                 <option value="">Peşə ixtisasını seçin</option>
@@ -952,10 +1119,14 @@ function Register() {
                     {item.display_name}
                   </option>
                 ))}
-                {otherServiceId && <option value={otherServiceId}>Digər</option>}
+                {otherServiceId && (
+                  <option value={otherServiceId}>Digər</option>
+                )}
               </select>
               {formDataErrors.profession_speciality && (
-                <p className="text-red-500 text-sm mt-1">{formDataErrors.profession_speciality}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.profession_speciality}
+                </p>
               )}
             </div>
             {formData.profession_speciality === otherServiceId && (
@@ -971,17 +1142,27 @@ function Register() {
                   onChange={handleChange}
                   onBlur={handleBlurValidation}
                   onKeyDown={(e) => {
-                    const isControlKey = ["Backspace", "Tab", "ArrowLeft", "ArrowRight", "Delete"].includes(e.key)
-                    const isLetter = /^[a-zA-ZəöüçğışƏÖÜÇĞŞİI ]$/.test(e.key)
-                    if (!isLetter && !isControlKey) e.preventDefault()
+                    const isControlKey = [
+                      "Backspace",
+                      "Tab",
+                      "ArrowLeft",
+                      "ArrowRight",
+                      "Delete",
+                    ].includes(e.key);
+                    const isLetter = /^[a-zA-ZəöüçğışƏÖÜÇĞŞİI ]$/.test(e.key);
+                    if (!isLetter && !isControlKey) e.preventDefault();
                   }}
                   placeholder="Daxil edin..."
                   className={`w-full border p-2 rounded-md text-cyan-900 cursor-text ${
-                    formDataErrors.custom_profession ? "border-red-600" : "border-gray-200"
+                    formDataErrors.custom_profession
+                      ? "border-red-600"
+                      : "border-gray-200"
                   } bg-[rgba(195,200,209,1)] px-4 py-2 cursor-pointer focus:outline-none focus:ring focus:ring-blue-300`}
                 />
                 {formDataErrors.custom_profession && (
-                  <p className="text-red-500 text-sm mt-1">{formDataErrors.custom_profession}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formDataErrors.custom_profession}
+                  </p>
                 )}
               </div>
             )}
@@ -998,21 +1179,26 @@ function Register() {
                 onChange={handleChange}
                 onInput={(e) => {
                   if (e.target.value > 90) {
-                    e.target.value = 90
+                    e.target.value = 90;
                   }
                 }}
                 max={90}
                 className={`${
-                  formDataErrors.experience_years ? "border-red-600" : "border-gray-300"
+                  formDataErrors.experience_years
+                    ? "border-red-600"
+                    : "border-gray-300"
                 } no-spinner outline-gray-200 w-full text-cyan-900 mt-1 p-2 text-[16px] border bg-gray-200 rounded-md`}
               />
               {formDataErrors.experience_years && (
-                <p className="text-red-500 text-sm mt-1">{formDataErrors.experience_years}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.experience_years}
+                </p>
               )}
             </div>
             <div className="mt-3 mb-4">
               <label className="block text-sm text-cyan-900 font-medium mb-1">
-                Fəaliyyət göstərdiyi ərazi : <span className="text-red-500">*</span>
+                Fəaliyyət göstərdiyi ərazi :{" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -1026,7 +1212,11 @@ function Register() {
                     : "text-gray-500 bg-[rgba(195,200,209,1)]"
                 } border-gray-300 px-4 py-2 cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-600`}
               />
-              {formDataErrors.cities && <p className="text-red-500 text-sm mt-1">{formDataErrors.cities}</p>}
+              {formDataErrors.cities && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.cities}
+                </p>
+              )}
             </div>
             <div className="flex justify-between items-center">
               <button
@@ -1046,7 +1236,10 @@ function Register() {
             </div>
             <p className="text-sm mt-4 text-gray-600 flex items-center justify-center gap-[3px]">
               Hesabınız var?
-              <a href="/login" className="text-[rgba(49,135,184,1)] hover:underline">
+              <a
+                href="/login"
+                className="text-[rgba(49,135,184,1)] hover:underline"
+              >
                 Daxil olun
               </a>
             </p>
@@ -1055,23 +1248,32 @@ function Register() {
         {step === 3 && (
           <div className="relative z-10 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-lg w-[90%] max-w-md">
             <div className="flex justify-evenly pb-[10px]">
-              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[rgba(195,200,209,1)]">1</div>
+              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[rgba(195,200,209,1)]">
+                1
+              </div>
               <div className="w-[40px] h-[2px] bg-[rgba(26,72,98,1)]  flex mt-3" />
-              <div className="w-8 h-8 flex items-center justify-center rounded-full  bg-[rgba(195,200,209,1)]  ">2</div>
+              <div className="w-8 h-8 flex items-center justify-center rounded-full  bg-[rgba(195,200,209,1)]  ">
+                2
+              </div>
               <div className="w-[40px] h-[2px] bg-[rgba(26,72,98,1)]    flex mt-3" />
               <div className="w-8 h-8 flex items-center justify-center rounded-full  bg-[rgba(26,72,98,1)]  text-white ">
                 3
               </div>
             </div>
             <p className="text-center  text-cyan-900 pb-3 pt-4">Addım 3/3 </p>
-            <h2 className="text-xl font-bold text-[#1A4852] mb-1 py-2">Əlavə məlumatlar</h2>
+            <h2 className="text-xl font-bold text-[#1A4852] mb-1 py-2">
+              Əlavə məlumatlar
+            </h2>
             <div className="mb-4">
               <label className="block text-sm text-cyan-900 font-medium mb-1 py-2">
                 Təhsil <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {educationOptions.map((option) => (
-                  <label key={option.id} className="flex items-start gap-2 text-sm text-cyan-900 break-words">
+                  <label
+                    key={option.id}
+                    className="flex items-start gap-2 text-sm text-cyan-900 break-words"
+                  >
                     <input
                       type="radio"
                       name="education"
@@ -1082,11 +1284,14 @@ function Register() {
                         setFormData((prev) => ({
                           ...prev,
                           education: Number.parseInt(e.target.value),
-                        }))
+                        }));
                         setFormDataErrors((prev) => ({
                           ...prev,
-                          education: getErrorMessage("education", Number.parseInt(e.target.value)),
-                        }))
+                          education: getErrorMessage(
+                            "education",
+                            Number.parseInt(e.target.value)
+                          ),
+                        }));
                       }}
                       onBlur={handleBlurValidation}
                     />
@@ -1094,7 +1299,11 @@ function Register() {
                   </label>
                 ))}
               </div>
-              {formDataErrors.education && <p className="text-red-500 text-sm mt-1">{formDataErrors.education}</p>}
+              {formDataErrors.education && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.education}
+                </p>
+              )}
             </div>
             {formData.education !== "" && formData.education !== 0 && (
               <div className="mb-4">
@@ -1111,7 +1320,9 @@ function Register() {
                   onBlur={handleBlurValidation}
                 />
                 {formDataErrors.educationField && (
-                  <p className="text-red-500 text-sm mt-1">{formDataErrors.educationField}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {formDataErrors.educationField}
+                  </p>
                 )}
               </div>
             )}
@@ -1121,7 +1332,10 @@ function Register() {
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4">
                 {languageOptions.map((lang) => (
-                  <label key={lang.id} className="flex items-center gap-1 text-sm text-cyan-900">
+                  <label
+                    key={lang.id}
+                    className="flex items-center gap-1 text-sm text-cyan-900"
+                  >
                     <input
                       type="checkbox"
                       name="languages"
@@ -1129,33 +1343,52 @@ function Register() {
                       checked={formData.languages.includes(lang.id)}
                       onChange={handleLanguageChange}
                       onBlur={handleBlurValidation}
-                      className={`accent-cyan-700 w-4 h-4 border-gray-300 ${lang.label === "İngilis" ? "ml-5" : ""}`}
+                      className={`accent-cyan-700 w-4 h-4 border-gray-300 ${
+                        lang.label === "İngilis" ? "ml-5" : ""
+                      }`}
                     />
                     {lang.label}
                   </label>
                 ))}
               </div>
-              {formDataErrors.languages && <p className="text-red-500 text-sm mt-1">{formDataErrors.languages}</p>}
+              {formDataErrors.languages && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.languages}
+                </p>
+              )}
             </div>
             <div className="mb-4">
-              <label className="block text-sm text-cyan-900 font-medium mb-1">Profil şəkli</label>
+              <label className="block text-sm text-cyan-900 font-medium mb-1">
+                Profil şəkli
+              </label>
               <div
                 className="border-2 border-dashed  bg-white border-gray-300 rounded-md py-6 text-center text-gray-500 hover:bg-gray-50 cursor-pointer transition"
                 onClick={handleUploadClick}
               >
                 <span className="text-sm  flex flex-col items-center justify-center pt-2">
-                  <img src="/gallery.svg" alt="Gallery icon" /> Şəkil yükləmək üçün klikləyin.
+                  <img src="/gallery.svg" alt="Gallery icon" /> Şəkil yükləmək
+                  üçün klikləyin.
                 </span>
-                <input type="file" className="hidden" ref={fileInputRef} onChange={handleProfileImageChange} />
+                <input
+                  type="file"
+                  className="hidden"
+                  ref={fileInputRef}
+                  onChange={handleProfileImageChange}
+                />
               </div>
               {formDataErrors.profile_image && (
-                <p className="text-red-500 text-sm mt-1">{formDataErrors.profile_image}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.profile_image}
+                </p>
               )}
             </div>
             {formData.profile_image && (
               <div className="flex flex-col items-start mt-2">
                 <img
-                  src={URL.createObjectURL(formData.profile_image) || "/placeholder.svg"}
+                  src={
+                    URL.createObjectURL(formData.profile_image) ||
+                    "/placeholder.svg"
+                  }
                   alt="Profil şəkli"
                   className="w-32 h-32 object-cover border border-gray-300 rounded-md"
                 />
@@ -1163,8 +1396,8 @@ function Register() {
                   <button
                     type="button"
                     onClick={() => {
-                      setImageToEdit(formData.profile_image)
-                      setShowEditor(true)
+                      setImageToEdit(formData.profile_image);
+                      setShowEditor(true);
                     }}
                     className="text-blue-600 text-sm hover:underline"
                   >
@@ -1174,9 +1407,12 @@ function Register() {
               </div>
             )}
             <div className="mb-4">
-              <label className="block  text-cyan-900 text-sm font-semibold mb-1">Sosial şəbəkə linkləri</label>
+              <label className="block  text-cyan-900 text-sm font-semibold mb-1">
+                Sosial şəbəkə linkləri
+              </label>
               <p className="text-xs text-gray-500 mb-2">
-                Peşənizlə əlaqədar sosial şəbəkə səhifəsinin (olduqda) linkini əlavə edə bilərsiniz.
+                Peşənizlə əlaqədar sosial şəbəkə səhifəsinin (olduqda) linkini
+                əlavə edə bilərsiniz.
               </p>
               {[
                 {
@@ -1212,7 +1448,10 @@ function Register() {
                     className="flex items-center justify-center w-12 h-12"
                     style={{ backgroundColor: `${network.color}20` }}
                   >
-                    <i className={`${network.icon} text-xl`} style={{ color: network.color }}></i>
+                    <i
+                      className={`${network.icon} text-xl`}
+                      style={{ color: network.color }}
+                    ></i>
                   </div>
                   <input
                     type="text"
@@ -1280,7 +1519,9 @@ function Register() {
               </div>
             </div>
             <div className="mb-6">
-              <label className="block text-cyan-900 text-sm font-medium mb-1">Haqqınızda</label>
+              <label className="block text-cyan-900 text-sm font-medium mb-1">
+                Haqqınızda
+              </label>
               <div className="relative">
                 <textarea
                   name="about"
@@ -1291,9 +1532,15 @@ function Register() {
                   className="w-full border border-gray-300 outline-gray-400 rounded-md p-2 min-h-[100px] resize-none pr-16 text-sm"
                   onBlur={handleBlurValidation}
                 />
-                <span className="absolute bottom-2 right-2 text-xs text-gray-500">{formData.about.length}/1500</span>
+                <span className="absolute bottom-2 right-2 text-xs text-gray-500">
+                  {formData.about.length}/1500
+                </span>
               </div>
-              {formDataErrors.about && <p className="text-red-500 text-sm mt-1">{formDataErrors.about}</p>}
+              {formDataErrors.about && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formDataErrors.about}
+                </p>
+              )}
             </div>
             <div className="flex justify-between items-center">
               <button
@@ -1315,7 +1562,10 @@ function Register() {
             </div>
             <p className="text-sm mt-4 text-gray-600 flex items-center justify-center gap-[3px]">
               Hesabınız var?{" "}
-              <a href="/login" className="text-[rgba(49,135,184,1)] hover:underline">
+              <a
+                href="/login"
+                className="text-[rgba(49,135,184,1)] hover:underline"
+              >
                 Daxil olun
               </a>
             </p>
@@ -1325,7 +1575,10 @@ function Register() {
       {showPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/50">
           <div className="w-[65%] h-[90%] rounded-2xl bg-image overflow-hidden shadow-lg">
-            <CitySelectionPopup onSendData={handleChildData} cities={citiesForShow} />
+            <CitySelectionPopup
+              onSendData={handleChildData}
+              cities={citiesForShow}
+            />
           </div>
         </div>
       )}
@@ -1339,7 +1592,7 @@ function Register() {
       )}
       <Footer />
     </div>
-  )
+  );
 }
 
-export default Register
+export default Register;

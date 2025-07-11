@@ -21,11 +21,9 @@ export const router = createBrowserRouter([
     children: [
       { path: "", element: <Home /> },
       { path: "ecom", element: <Ecom /> },
-      { path: "reviews/:masterId", element: <ReviewPage /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "profil", element: <ProfilePage /> },
-      { path: "rey", element: <Rey /> },
       { path: "review/:masterId", element: <Review /> },
       { path: "edit", element: <Edit /> },
       { path: "reset", element: <ChangePassword /> },

@@ -4,7 +4,7 @@ import { GoPerson } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
 import { LiaHomeSolid } from "react-icons/lia";
 import { MdLogout } from "react-icons/md";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import LogoutButton from "../components/logout";
 
 const Sidebar = () => {
@@ -56,7 +56,9 @@ const Sidebar = () => {
         }}
       >
         <div className="flex w-full justify-between items-center">
-          <h1 className="text-2xl font-bold mb-6"></h1>
+          <Link to="/" className="text-white text-lg font-bold mx-auto my-5">
+            <img src="./ag-logo.png" alt="logo" className="h-15 w-auto"/>
+          </Link>
           {isSidebarOpen && (
             <i
               onClick={() => setIsSidebarOpen(false)}
@@ -67,7 +69,9 @@ const Sidebar = () => {
 
         <nav className="space-y-2">
           {menu.map((item, idx) => {
-            const isActive = currentPath === item.path || currentPath.startsWith(item.path + "/");
+            const isActive =
+              currentPath === item.path ||
+              currentPath.startsWith(item.path + "/");
 
             return item.isLogout ? (
               <LogoutButton
