@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import Footer from "./Footer";
+import Footer from "../components/Footer";
 
 const getImageUrl = (path) => {
   if (!path) return "/placeholder.svg";

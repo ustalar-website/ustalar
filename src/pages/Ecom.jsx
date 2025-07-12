@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import EcomCard from "../components/EcomCard";
 import { CheckCircle, User, Star, ArrowUpDown, Search } from "lucide-react";
 
-import Footer from "../components/Footer";
+import Footer from "../home/Components/Footer";
 import Header from "../home/Components/Header";
 import NewEcomSideBar from "../components/NewEcomSideBar"
 

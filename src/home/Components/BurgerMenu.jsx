@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './burger.css';
+import { FiChevronDown } from 'react-icons/fi';
 
 // Import your icons
-// import arrow from '../assets/arrow-down.svg';
-// Icons
-import { FiChevronDown, FiX } from 'react-icons/fi';
-
 import temir from '../assets/temir.svg';
 import ev from '../assets/ev.svg';
 import tehsil from '../assets/tehsil.svg';
@@ -13,51 +11,88 @@ import gozelik from '../assets/gozellik.svg';
 import aile from '../assets/aile.svg';
 import ictimai from '../assets/ictimai.svg';
 
-
-const categoriesData = [
-  {
-    id: 'temir',
-    name: 'Təmir və tikinti',
-    icon: temir,
-    subcategories: ['Santexnika və isitmə', 'Elektrik işləri', 'Dizayn və memarlıq', 'Usta xidməti', 'Təmir işləri'],
-  },
-  {
-    id: 'ev',
-    name: 'Ev və məişət xidmətləri',
-    icon: ev,
-    subcategories: ['Təmizlik xidmətləri', 'Mebel təmiri və yığılması', 'Yük daşıma', 'Pərdə və jalüz'],
-  },
-  {
-    id: 'tehsil',
-    name: 'Təhsil xidmətləri',
-    icon: tehsil,
-    subcategories: ['Repetitorlar', 'Xarici dil kursları', 'Musiqi dərsləri', 'Sürücülük kursları'],
-  },
-  {
-    id: 'gozellik',
-    name: 'Gözəllik və sağlamlıq',
-    icon: gozelik,
-    subcategories: ['Salon xidmətləri', 'Dietoloq', 'Psixoloq', 'İdman məşqçisi', 'Lazer epilyasiyası'],
-  },
-  {
-    id: 'aile',
-    name: 'Ailə və Baxıcı xidmətləri',
-    icon: aile,
-    subcategories: ['Dayə xidməti', 'Xəstə baxıcısı', 'Yaşlı baxıcısı', 'Ev köməkçisi'],
-  },
-  {
-    id: 'ictimai',
-    name: 'İctimai və fərdi təlimlər',
-    icon: ictimai,
-    subcategories: ['Biznes təlimləri', 'Marketinq təlimləri', 'İT və proqramlaşdırma', 'Fərdi inkişaf'],
-  },
-];
-
 const BurgerMenu = ({ isOpen, onClose }) => {
   const [activeCategory, setActiveCategory] = useState(null);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const toggleCategory = (id) => {
+  const categoriesData = [
+    {
+      id: 2,
+      name: 'Təmir və tikinti',
+      icon: temir,
+    },
+    {
+      id: 3, 
+      name: 'Ev və məişət xidmətləri',
+      icon: ev,
+    },
+    {
+      id: 4,
+      name: 'Təhsil xidmətləri',
+      icon: tehsil,
+    },
+    {
+      id: 5,
+      name: 'Gözəllik və sağlamlıq',
+      icon: gozelik,
+    },
+    {
+      id: 6,
+      name: 'Ailə və Baxıcı xidmətləri',
+      icon: aile,
+    },
+    {
+      id: 7,
+      name: 'İctimai və fərdi təlimlər',
+      icon: ictimai,
+    },
+  ];
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('https://api.peshekar.online/api/v1/services/');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setServices(data);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching services:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  const handleCategoryClick = (categoryId) => {
+    localStorage.setItem('selectedCategory', categoryId);
+    localStorage.setItem('shouldExpandCategories', 'true');
+    
+    navigate('/ecom');
+    
+    onClose();
+  };
+
+  const toggleCategory = (id, e) => {
+    e.stopPropagation(); 
     setActiveCategory(activeCategory === id ? null : id);
+  };
+
+  const getSubcategories = (categoryId) => {
+    return services
+      .filter(service => service.category?.id === categoryId)
+      .map(service => ({
+        id: service.id,
+        name: service.display_name
+      }));
   };
 
   return (
@@ -68,10 +103,14 @@ const BurgerMenu = ({ isOpen, onClose }) => {
         <nav className="burger-nav">
           <ul className="category-list">
             {categoriesData.map((category) => (
-              <li key={category.id} className="category-item">
+              <li 
+                key={category.id} 
+                className="category-item"
+                onClick={() => handleCategoryClick(category.id)}
+              >
                 <button 
                   className="category-button"
-                  onClick={() => toggleCategory(category.id)}
+                  onClick={(e) => toggleCategory(category.id, e)}
                   aria-expanded={activeCategory === category.id}
                 >
                   <div className="category-content">
@@ -85,11 +124,27 @@ const BurgerMenu = ({ isOpen, onClose }) => {
                 
                 {activeCategory === category.id && (
                   <ul className="subcategory-list">
-                    {category.subcategories.map((sub, index) => (
-                      <li key={index} className="subcategory-item">
-                        <a href="#" className="subcategory-link">{sub}</a>
-                      </li>
-                    ))}
+                    {loading ? (
+                      <li className="subcategory-item">Loading...</li>
+                    ) : error ? (
+                      <li className="subcategory-item">Error loading services</li>
+                    ) : (
+                      getSubcategories(category.id).map((sub) => (
+                        <li 
+                          key={sub.id} 
+                          className="subcategory-item"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            localStorage.setItem('selectedSubcategory', sub.id);
+                            localStorage.setItem('shouldExpandCategories', 'true');
+                            navigate('/ecom');
+                            onClose();
+                          }}
+                        >
+                          <span className="subcategory-link">{sub.name}</span>
+                        </li>
+                      ))
+                    )}
                   </ul>
                 )}
               </li>
