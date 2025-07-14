@@ -28,7 +28,7 @@ const Footer = () => {
 
           <div className="footer-column footer-about">
             <div className="footer-brand">
-              <h3 className="footer-title">Peşəkar.az</h3>
+              <h3 className="footer-title">Peşəkar.online</h3>
               <div className="title-underline"></div>
             </div>
             <p className="footer-description">
@@ -59,7 +59,7 @@ const Footer = () => {
             <ul className="contact-list">
               <li className="contact-item"><FiMapPin className="contact-icon" /><span>Bakı, Azərbaycan</span></li>
               <li className="contact-item"><FiPhone className="contact-icon" /><span>+994 55 555 55 55</span></li>
-              <li className="contact-item"><FiMail className="contact-icon" /><span>info@peshekar.az</span></li>
+              <li className="contact-item"><FiMail className="contact-icon" /><span>info@peshekar.online</span></li>
             </ul>
           </div>
         </div>
