@@ -1,5 +1,3 @@
-"use client";
-
 import { Star, CalendarDays } from "lucide-react";
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -76,7 +74,6 @@ export default function ReviewProfession() {
     setError(null);
     setReviews([]);
     try {
-      // Removed sortParam from URL to handle sorting on frontend
       const url = `https://api.peshekar.online/api/v1/professionals/${masterId}/reviews/`;
       const response = await fetch(url);
 
@@ -118,7 +115,7 @@ export default function ReviewProfession() {
           isAnonymous: !apiReview.username,
           rating: apiReview.rating,
           date: formatReviewDate(apiReview.created_at),
-          createdAt: apiReview.created_at, // Keep original date string for sorting
+          createdAt: apiReview.created_at,
           text: apiReview.comment,
           tags: Object.entries(TAG_DISPLAY_MAPPING)
             .filter(([key]) => apiReview[key] === true)
@@ -132,7 +129,6 @@ export default function ReviewProfession() {
         };
       });
 
-      // Apply frontend sorting
       formattedReviews.sort((a, b) => {
         if (selectedSortOption === "newest") {
           return new Date(b.createdAt) - new Date(a.createdAt);
@@ -152,7 +148,7 @@ export default function ReviewProfession() {
     } finally {
       setLoading(false);
     }
-  }, [masterId, selectedSortOption]); // Re-fetch when sort option changes
+  }, [masterId, selectedSortOption]);
 
   useEffect(() => {
     fetchReviews();
@@ -186,7 +182,6 @@ export default function ReviewProfession() {
     };
   };
 
-  // These now operate directly on the 'reviews' state, which is already sorted
   const {
     distribution,
     percentages,
@@ -197,7 +192,6 @@ export default function ReviewProfession() {
 
   const [showMoreReview, setShowMoreReview] = useState(false);
 
-  // Get all unique tags from the *original* fetched reviews for display
   const allAvailableTags = [...new Set(reviews.flatMap((r) => r.tags))];
 
   const openImageModal = (imageUrl) => {

@@ -133,13 +133,15 @@ margin-left: 0.8rem;
   transform: rotate(180deg);
 }
 
-/* Subcategories */
 .subcategory-list {
   list-style: none;
   padding: 0;
   margin: 0;
   background: #f9f9f9;
   animation: fadeIn 0.2s ease-out;
+  max-height: 15rem;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 .subcategory-item {
@@ -168,7 +170,6 @@ margin-left: 0.8rem;
   color: #000;
 }
 
-/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -218,7 +219,7 @@ margin-left: 0.8rem;
     left: 0 !important;
     width: 100% !important;
     background: white;
-    transform: translateY(0);   /* visible */
+    transform: translateY(0);
     box-shadow: 0 7px 8px rgba(0, 0, 0, 0.1);
     border-radius: 0 0 10px 10px;
     box-sizing: border-box;
