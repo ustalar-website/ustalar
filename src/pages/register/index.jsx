@@ -11,7 +11,7 @@ import axios from "axios";
 import { format, subYears, isValid, parseISO } from "date-fns";
 import Swal from "sweetalert2";
 import backgroundPng from "../../assets/background.png";
-import Footer from "../../home/components/Footer";
+import Footer from "../../home/Components/Footer";
 import Logo from "../../../public/ag-logo.png";
 
 const cities = [
