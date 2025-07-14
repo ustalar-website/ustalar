@@ -23,7 +23,9 @@ export default function EcomCard({
   return (
     <div className="w-full max-w-[300px] mx-auto h-[400px] rounded-lg shadow-md overflow-hidden bg-white flex flex-col">
       <div className="relative w-full h-48">
-        <img
+        <img 
+        style={{ cursor: "pointer" }}
+          onClick={handleClick}
           src={
             professional.profile_image ||
             "/placeholder.svg?height=192&width=256"
