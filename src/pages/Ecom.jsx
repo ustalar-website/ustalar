@@ -84,7 +84,10 @@ export default function Ecom() {
       let totalCount = 0;
 
       try {
-        if (sidebarFilters.subcategories.length > 0) {
+        if (
+          sidebarFilters.subcategories.length > 0 &&
+          sidebarFilters.categories.length === 0
+        ) {
           const promises = sidebarFilters.subcategories.map(
             async (subcategoryId) => {
               const response = await fetch(
@@ -268,7 +271,10 @@ export default function Ecom() {
         })
         .catch((err) => setError(err.message))
         .finally(() => setLoading(false));
-    } else if (sidebarFilters.subcategories.length > 0) {
+    } else if (
+      sidebarFilters.subcategories.length > 0 &&
+      sidebarFilters.categories.length === 0
+    ) {
       console.warn(
         "Pagination is not supported when multiple subcategories are selected (frontend OR logic)."
       );
@@ -341,8 +347,8 @@ export default function Ecom() {
                 Peşəkarlar yüklənir...
               </div>
             ) : error ? (
-              <div className="text-center text-lg text-red-500">
-                Xəta: {error}. Zəhmət olmasa, yenidən cəhd edin.
+              <div className="text-center text-lg text-gray-600">
+                Heç bir peşəkar tapılmadı.
               </div>
             ) : professionals.length === 0 ? (
               <div className="text-center text-lg text-gray-600">
