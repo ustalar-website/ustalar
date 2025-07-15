@@ -272,10 +272,8 @@ export default function Ecom() {
                   className="relative w-56 p-3 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50"
                 >
                   <div className="flex flex-col items-start pr-8">
-                    <p className="text-lg font-bold">Sırala</p>
-                    <span className="block text-xs text-gray-600 font-normal mt-2">
-                      {selectedSort}
-                    </span>
+                    <p className="text-lg font-light">{selectedSort}</p>
+                    
                   </div>
                   <ArrowUpDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-600" />
                 </button>
