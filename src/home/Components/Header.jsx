@@ -64,9 +64,9 @@ function Header() {
   return (
     <header className="header-container fixed-header">
       <div className="header-left">
-        <div className="logo">
+        <Link className="logo" to="/">
           <img src={Logo} alt="Logo" />
-        </div>
+        </Link>
         <button className="menu-button" onClick={toggleMenu}>
           {isMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
         </button>
