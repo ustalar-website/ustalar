@@ -9,7 +9,7 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 import { FaRegUserCircle } from "react-icons/fa";
-import Logo from "../assets/logo.svg"
+import Logo from  '../../../public/logo_original.png';
 import BurgerMenuOverlay from "./BurgerMenu";
 import { Link, useNavigate } from "react-router-dom";
 
