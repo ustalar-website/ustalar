@@ -9,7 +9,7 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 import { FaRegUserCircle } from "react-icons/fa";
-import Logo from  '../../../public/original-logo.png';
+import Logo from "../../../public/original-logo.png";
 import BurgerMenuOverlay from "./BurgerMenu";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -65,7 +65,9 @@ function Header() {
     <header className="header-container fixed-header">
       <div className="header-left">
         <div className="logo">
-          <img src={Logo} alt="Logo" />
+          <Link to='/'>
+            <img src={Logo} alt="Logo" />
+          </Link>
         </div>
         <button className="menu-button" onClick={toggleMenu}>
           {isMenuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
