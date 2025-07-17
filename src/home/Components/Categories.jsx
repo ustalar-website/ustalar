@@ -37,7 +37,6 @@ const Categories = () => {
 
   const handleClick = (item) => {
     if (item.categoryId) {
-      // filter all services under the given categoryId
       const filtered = services.filter(
         (service) => service.category.id === item.categoryId
       );
