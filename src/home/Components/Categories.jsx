@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import './categories.css';
 import { FiChevronDown } from 'react-icons/fi';
 import { Link } from 'react-router-dom'
-// import table from '../assets/table.svg';
 import paint from '../assets/paint.svg';
 import bor from '../assets/bor.svg';
 import mdi from '../assets/mdi.svg';
-// import maki from '../assets/maki.svg';
 import sicon from '../assets/sicon.svg';
 import kombi from '../assets/kombi.svg';
 import baby from '../assets/baby.svg';
@@ -17,21 +15,30 @@ import BurgerMenu from './BurgerMenu';
 const Categories = () => {
   const [showBurger, setShowBurger] = useState(false);
   const [services, setServices] = useState([]);
+  const [workerCounts, setWorkerCounts] = useState({});
   const navigate = useNavigate();
 
   const categories = [
-    { icon: kombi, title: "Kombi ustası", workers: "90+ ", subId: 18 },
-    { icon: paint, title: "Rəngsaz", workers: "150+ ", subId: 5 },
-    { icon: bor, title: "Santexnik", workers: "400+ ", subId: 3 },
-    { icon: mdi, title: "Dülgər", workers: "360+ ", subId: 6 },
-    { icon: sicon, title: "Təmizlik xidmətləri", workers: "760+ Usta", subId: 12 },
-    { icon: baby, title: "Dayə", workers: "566+ ", subId: 57 }
+    { icon: kombi, title: "Kombi ustası", workers: "90+", subId: 18 },
+    { icon: paint, title: "Rəngsaz", workers: "150+", subId: 5 },
+    { icon: bor, title: "Santexnik", workers: "400+", subId: 3 },
+    { icon: mdi, title: "Dülgər", workers: "360+", subId: 6 },
+    { icon: sicon, title: "Təmizlik xidmətləri", workers: "760+", subId: 12 },
+    { icon: baby, title: "Dayə", workers: "566+", subId: 57 }
   ];
 
   useEffect(() => {
-    fetch('/api/v1/services/')
+    fetch('https://api.peshekar.online/api/v1/services/')
       .then((res) => res.json())
-      .then((data) => setServices(data))
+      .then((data) => {
+        setServices(data);
+        
+        const counts = {};
+        data.forEach(service => {
+          counts[service.id] = service.professional_count;
+        });
+        setWorkerCounts(counts);
+      })
       .catch((err) => console.error(err));
   }, []);
 
@@ -69,7 +76,7 @@ const Categories = () => {
               <img src={item.icon} alt={item.title} className='category-icon' />
               <div className="category-info">
                 <h3>{item.title}</h3>
-                <p>{item.workers}</p>
+                <p>{workerCounts[item.subId] !== undefined ? `${workerCounts[item.subId]}+` : item.workers}</p>
               </div>
             </div>
           ))}
