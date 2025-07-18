@@ -108,32 +108,44 @@ function Header() {
     setSuggestions(matchedCategories);
   }, [searchTerm]);
 
-  const handleSearch = () => {
-    if (searchTerm.trim() === "") return;
+const goToEcom = (extraState = {}) => {
+  if (location.pathname === '/ecom') {
+    // Force a reload so /ecom picks up new filters
+    window.location.reload();
+  } else {
+    navigate('/ecom', { state: extraState });
+  }
+};
 
-    const matchedCategory = categories.find(category =>
-      category.title.toLowerCase() === searchTerm.toLowerCase()
-    );
+const handleSearch = () => {
+  if (searchTerm.trim() === "") return;
 
-    if (matchedCategory) {
-      localStorage.setItem('selectedSubcategory', matchedCategory.subId);
-      localStorage.setItem('shouldExpandCategories', 'true');
-      navigate('/ecom');
-    } else {
-      navigate('/ecom', { state: { searchQuery: searchTerm } });
-    }
+  const matchedCategory = categories.find(category =>
+    category.title.toLowerCase() === searchTerm.toLowerCase()
+  );
 
-    setSearchTerm("");
-    setShowSuggestions(false);
-  };
-
-  const handleSuggestionClick = (category) => {
-    setSearchTerm(category.title);
-    setShowSuggestions(false);
-    localStorage.setItem('selectedSubcategory', category.subId);
+  if (matchedCategory) {
+    localStorage.setItem('selectedSubcategory', matchedCategory.subId);
     localStorage.setItem('shouldExpandCategories', 'true');
-    navigate('/ecom');
-  };
+    goToEcom();
+  } else {
+    goToEcom({ searchQuery: searchTerm });
+  }
+
+  setSearchTerm("");
+  setShowSuggestions(false);
+};
+
+const handleSuggestionClick = (category) => {
+  setSearchTerm(category.title);
+  setShowSuggestions(false);
+  localStorage.setItem('selectedSubcategory', category.subId);
+  localStorage.setItem('shouldExpandCategories', 'true');
+  goToEcom();
+};
+
+
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
