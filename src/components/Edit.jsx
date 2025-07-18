@@ -153,7 +153,8 @@ export default function Edit() {
       return false;
     }
     const passwordRegex =
-      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\-_+])[A-Za-z\d!@#\-_+]{8,15}$/;
+      /^(?=.*[A-ZƏÜÖĞÇŞ])(?=.*\d)(?=.*[!@#\-_+])[A-Za-zƏÜÖĞÇŞəüöğçş\d!@#\-_+]{8,15}$/;
+
     if (!passwordRegex.test(pwd)) {
       setNewPasswordError(
         "Şifrəniz 8-15 simvol aralığından ibarət olmalı, özündə minimum bir böyük hərf, rəqəm və xüsusi simvol (məsələn: !, @, #, -, _) ehtiva etməlidir."
@@ -979,7 +980,8 @@ export default function Edit() {
       return false;
     }
     const passwordRegex =
-      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\-_+])[A-Za-z\d!@#\-_+]{8,15}$/;
+      /^(?=.*[A-ZƏÜÖĞÇŞ])(?=.*\d)(?=.*[!@#\-_+])[A-Za-zƏÜÖĞÇŞəüöğçş\d!@#\-_+]{8,15}$/;
+
     if (!passwordRegex.test(pwd)) {
       setPasswordError(
         "Şifrəniz 8-15 simvol aralığından ibarət olmalı, özündə minimum bir böyük hərf, rəqəm və xüsusi simvol (məsələn: !, @, #, -, _) ehtiva etməlidir."

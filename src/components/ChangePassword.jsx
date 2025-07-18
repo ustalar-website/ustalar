@@ -135,7 +135,7 @@ export default function EditPassword() {
       }
 
       const passwordRegex = new RegExp(
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-])[A-Za-z\\d!@#$%^&*()_+\\-]{8,15}$"
+        "^(?=.*[a-zəüöğçş])(?=.*[A-ZƏÜÖĞÇŞ])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-])[A-Za-zƏÜÖĞÇŞəüöğçş\\d!@#$%^&*()_+\\-]{8,15}$"
       );
 
       if (!passwordRegex.test(newPassword)) {
