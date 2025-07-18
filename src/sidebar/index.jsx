@@ -6,6 +6,7 @@ import { LiaHomeSolid } from "react-icons/lia";
 import { MdLogout } from "react-icons/md";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import LogoutButton from "../components/logout";
+import logo from "../../public/ag-logo.png";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ const Sidebar = () => {
       >
         <div className="flex w-full justify-between items-center">
           <Link to="/" className="text-white text-lg font-bold mx-auto my-5">
-            <img src="./ag-logo.png" alt="logo" className="h-15 w-auto"/>
+            <img src={logo} alt="logo" className="h-15 w-auto"/>
           </Link>
           {isSidebarOpen && (
             <i
