@@ -44,9 +44,12 @@ const JoinUsCard = () => {
     try {
       const formattedNumber = formatPhoneForApi(phoneNumber);
 
-      if (formattedNumber.length !== 9 || !formattedNumber.startsWith("5")) {
+      const allowedPrefixes = ["50", "51", "55", "70", "77", "99", "10", "60"];
+      const prefixRegex = new RegExp(`^(${allowedPrefixes.join("|")})`);
+
+      if (formattedNumber.length !== 9 || !prefixRegex.test(formattedNumber)) {
         throw new Error(
-          "Mobil nömrə 5 ilə başlamalı və 9 rəqəmdən ibarət olmalıdır (məs: 501234567)"
+          "Mobil nömrə düzgün daxil edilməyib. Məsələn: 501234567"
         );
       }
 
@@ -69,7 +72,6 @@ const JoinUsCard = () => {
 
       setIsSent(true);
       navigate(`/register?phone=${formattedNumber}`);
-
     } catch (err) {
       setError(err.message);
     } finally {
