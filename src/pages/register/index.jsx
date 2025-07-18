@@ -9,6 +9,8 @@ import CitySelectionPopup from "../../components/CitySelectionPopup";
 import ImageEditor from "../../components/ImageEditor";
 import axios from "axios";
 import { format, subYears, isValid, parseISO } from "date-fns";
+import { useLocation } from "react-router-dom";
+
 import Swal from "sweetalert2";
 import backgroundPng from "../../assets/background.png";
 import Footer from "../../home/Components/Footer";
@@ -61,6 +63,18 @@ const cities = [
 ];
 
 function Register() {
+  const location = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const phoneFromQuery = params.get("phone");
+    if (phoneFromQuery) {
+      setFormData((prev) => ({
+        ...prev,
+        mobile_number: phoneFromQuery,
+      }));
+    }
+  }, [location.search]);
+  
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const [formDataErrors, setFormDataErrors] = useState({});
