@@ -178,9 +178,6 @@ export default function Edit() {
     return true;
   };
 
-  const registrationDate = new Date("2025-08-11");
-  const formattedRegistrationDate = format(registrationDate, "dd MMMM");
-
   const isAzerbaijaniLetter = (char) => {
     return /^[a-zA-ZçÇəƏğĞıİöÖşŞüÜ]+$/.test(char);
   };
@@ -1803,9 +1800,6 @@ export default function Edit() {
               </h1>
               <p className="text-[16px] text-[#656F83]">
                 Profil məlumatlarınızı yeniləyin.
-              </p>
-              <p className="text-[14px] text-[#1A4862] font-semibold">
-                Qeydiyyat tarixi: {formattedRegistrationDate}
               </p>
             </div>
           </div>
